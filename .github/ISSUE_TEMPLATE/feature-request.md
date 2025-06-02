@@ -3,21 +3,21 @@ name: Feature Request
 about: Suggest an idea for this project
 title: "[FEATURE]"
 labels: enhancement
-assignees: rafsandwich
+assignees: ''
 
 ---
 
-**Is your feature request related to a user story? Please describe.**
-<!-- Description of the associated user story, e.g. `As a ___, when I ____, I want it to _____. So that I can ____.` -->
+### Is your feature request related to a user story? Please describe
+<!-- The user story, e.g. `As a _, when I _, I want it to _. So that I can _.` -->
 
-**Describe the implementation you'd like**
+### Describe the implementation you'd like
 <!-- A clear and concise description of what you want to happen. -->
 
-**Estimated effort / time**
+### Estimated effort / time
 <!-- T-Shirt sizes (S/M/L/XL etc., hours if appropriate) -->
 
-**OPTIONAL: Describe alternatives you've considered**
+### OPTIONAL: Describe alternatives you've considered
 <!-- A clear and concise description of any alternative solutions or features you've considered. -->
 
-**Additional context**
+### Additional context
 <!-- Add any other context or screenshots about the feature request here. -->

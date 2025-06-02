@@ -7,17 +7,17 @@ assignees: ''
 
 ---
 
-**Describe the suggested improvement**
+### Describe the suggested improvement
 <!-- A clear and concise description of what the improvement is. -->
 
-**Expected behaviour**
+### Expected behaviour
 <!-- A clear and concise description of what you expected to happen. -->
 
-**Branch information**
+### Branch information
 <!-- What branch was the user on? -->
 
-**Estimated effort / time**
+### Estimated effort / time
 <!-- T-Shirt sizes (S/M/L/XL etc., hours if appropriate) -->
 
-**Additional context**
+### Additional context
 <!-- Add any other context about the problem here. -->

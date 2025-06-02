@@ -7,21 +7,20 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+### Describe the bug
 <!-- A clear and concise description of what the bug is. -->
 
-**To Reproduce**
-Steps to reproduce the behaviour:
-<!-- Please be specific and use steps -->
+### To Reproduce
+<!-- Please be specific and use steps. -->
 
-**Expected behaviour**
+### Expected behaviour
 <!-- A clear and concise description of what you expected to happen. -->
 
-**Branch information**
+### Branch information
 <!-- What branch was the user on? -->
 
-**Estimated effort / time**
+### Estimated effort / time
 <!-- T-Shirt sizes (S/M/L/XL etc., hours if appropriate) -->
 
-**Additional context**
+### Additional context
 <!-- Add any other context about the problem here. -->
