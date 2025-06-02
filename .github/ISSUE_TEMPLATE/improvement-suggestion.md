@@ -1,18 +1,14 @@
 ---
-name: Bug Report
-about: Create a report to help us improve
-title: "[BUG]"
-labels: bug
+name: Improvement Suggestion
+about: Suggest an improvement to the code
+title: "[IMPROVEMENT]"
+labels: improvement
 assignees: ''
 
 ---
 
-**Describe the bug**
-<!-- A clear and concise description of what the bug is. -->
-
-**To Reproduce**
-Steps to reproduce the behaviour:
-<!-- Please be specific and use steps -->
+**Describe the suggested improvement**
+<!-- A clear and concise description of what the improvement is. -->
 
 **Expected behaviour**
 <!-- A clear and concise description of what you expected to happen. -->
