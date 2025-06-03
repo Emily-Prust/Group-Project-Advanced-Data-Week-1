@@ -9,22 +9,30 @@ BASE_URL = 'https://sigma-labs-bot.herokuapp.com/api/plants/'
 CSV_NAME = 'raw_plants.csv'
 
 
-async def extract_plant_data():
+async def extract_plant_data() -> list[dict]:
     """Extract plant information by id."""
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:  # Running all the time
 
-        plants = []
-        for i in range(51):
-            async with session.get(f'{BASE_URL}{i}') as response:
+        plants = [extract_single_plant_data(i, session) for i in range(51)]
 
-                print("Status:", response.status)
-                html = await response.json()
+        plant_data = await asyncio.gather(*plants)
 
-                # if response.status == 200:
-                plants.append(html)
+    print("Finished all plants")
+    return plant_data
 
-    return plants
+
+async def extract_single_plant_data(plant_id: int, session) -> dict:
+
+    print(f"Started plant {plant_id}.")
+    response = await session.get(f'{BASE_URL}{plant_id}')
+
+    html = await response.json()
+
+    print("Status:", response.status)
+    print(f"Finished plant {plant_id}.")
+
+    return html
 
 
 def create_plants_csv(plants: list[dict]) -> None:
