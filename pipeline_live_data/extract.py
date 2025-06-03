@@ -10,7 +10,7 @@ CSV_NAME = 'raw_plants.csv'
 
 
 async def extract_plant_data() -> list[dict]:
-    """Extract plant information by id."""
+    """Extract all plant data."""
 
     async with aiohttp.ClientSession() as session:  # Running all the time
 
@@ -22,7 +22,8 @@ async def extract_plant_data() -> list[dict]:
     return plant_data
 
 
-async def extract_single_plant_data(plant_id: int, session) -> dict:
+async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSession) -> dict:
+    """Extracts plant data for a given id. """
 
     print(f"Started plant {plant_id}.")
     response = await session.get(f'{BASE_URL}{plant_id}')
