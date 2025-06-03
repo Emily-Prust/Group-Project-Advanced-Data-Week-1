@@ -33,7 +33,7 @@ async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSessio
 
     if response.status != 200:
         html['received_at'] = datetime.now(
-            timezone.utc).strftime(f'%Y-%m-%dT%H:%M:%S.%fZ')
+            timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
     print("Status:", response.status)
     print(f"Finished plant {plant_id}.")
