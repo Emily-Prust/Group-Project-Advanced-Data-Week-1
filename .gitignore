@@ -100,3 +100,5 @@ terraform.tfstate.*
 *.pemkey
 
 .env
+
+*_plants.csv
