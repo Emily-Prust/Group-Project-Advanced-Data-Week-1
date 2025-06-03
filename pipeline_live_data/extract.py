@@ -2,6 +2,7 @@
 
 import csv
 import asyncio
+from datetime import datetime, timezone
 
 import aiohttp
 
@@ -29,6 +30,10 @@ async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSessio
     response = await session.get(f'{BASE_URL}{plant_id}')
 
     html = await response.json()
+
+    if response.status != 200:
+        html['received_at'] = datetime.now(
+            timezone.utc).strftime(f'%Y-%m-%dT%H:%M:%S.%fZ')
 
     print("Status:", response.status)
     print(f"Finished plant {plant_id}.")
