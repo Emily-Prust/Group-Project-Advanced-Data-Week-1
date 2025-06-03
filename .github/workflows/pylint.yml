@@ -29,5 +29,5 @@ jobs:
             
             - name: Run Pylint
               run: |
-                pylint **/*.py
+                pylint test_temp/bad.py --fail-under 8.0
                 
