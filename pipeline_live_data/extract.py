@@ -1,5 +1,6 @@
 """Extracting plant data from the API."""
 
+import os
 import csv
 import asyncio
 from datetime import datetime, timezone
@@ -49,9 +50,12 @@ def create_plants_csv(plants: list[dict]) -> None:
         fieldnames.update(entry.keys())
     fieldnames = list(fieldnames)
 
-    with open(CSV_NAME, mode='w', newline='', encoding='utf-8') as file:
+    with open(CSV_NAME, mode='a', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
+
+        if not os.path.exists(CSV_NAME):
+            writer.writeheader()
+
         writer.writerows(plants)
 
 
