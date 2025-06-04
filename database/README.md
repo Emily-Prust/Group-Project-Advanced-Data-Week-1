@@ -1,4 +1,4 @@
-# /database
+# `/database`
 
 This directory contains the files for creating and managing the database.
 
