@@ -1,5 +1,9 @@
 # `/terraform`
 
+All terraform files for the project are inside this folder.
+
+## Set up
+
 Create a `terraform.tfvars` file locally, and populate it with:
 
 - AWS_ACCESS_KEY - AWS IAM access key
@@ -12,13 +16,13 @@ Note: `terraform init` has been run.
 `main.tf` will provision the following resources:
 
 #### An ECR Repository for the image for the ETL pipeline: 
-- `c17-allum-ecr-pipeline-terraform`
+- `c17-allum-ecr-pipeline-terraform`.
 
 #### IAM Role & Policies for the pipeline Lambda function:
-- Permissions for CloudWatch Logs
+- Permissions for CloudWatch Logs.
 
 #### Lambda Function for ETL pipeline
-- `c17-allum-lambda-pipeline-terraform`
+- `c17-allum-lambda-pipeline-terraform`.
 - Runs the ETL Pipeline every minute.
 - Triggered by an EventBridge.
 - Runs the latest image from `c17-allum-ecr-pipeline-terraform`.
@@ -31,5 +35,5 @@ Note: `terraform init` has been run.
 
 To provision resources run the following commands:
 
-`terraform plan`
+`terraform plan`  
 `terraform apply`
