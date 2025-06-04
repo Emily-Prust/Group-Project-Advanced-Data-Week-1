@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from aiohttp import ClientSession
 
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
