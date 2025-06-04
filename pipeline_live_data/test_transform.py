@@ -19,7 +19,7 @@ def test_df():
 
 
 def test_replace_columns_column_names_change_as_expected(test_df):
-    """Testing column names are renamed appropriately"""
+    """Testing column names are renamed appropriately."""
 
     df = replace_columns(test_df)
     assert list(df.columns) == ['plant_name', 'error_name', 'at', 'botanist']
