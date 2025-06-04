@@ -1,0 +1,4 @@
+pytest
+pylint
+streamlit
+pandas
