@@ -17,7 +17,8 @@ def replace_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=['images'])
     df = df.rename(columns={
         'name': 'plant_name',
-        'error': 'error_name'
+        'error': 'error_name',
+        'recording_taken': 'at'
     })
     return df
 
@@ -57,9 +58,11 @@ def main_transform() -> pd.DataFrame:
 
     df = replace_columns(df)
     df = fix_type_of_string_dicts(df, ['botanist', 'origin_location'])
+    df['scientific_name'] = df['scientific_name'].str.strip(
+        '[]').str.strip("'").str.strip('"')
 
     clean_df = df[['plant_id', 'plant_name', 'scientific_name', 'error_name', 'temperature',
-                   'soil_moisture', 'last_watered', 'recording_taken', 'received_at']].copy()
+                   'soil_moisture', 'last_watered', 'at', 'received_at']].copy()
 
     clean_df = create_columns_from_dict_strings(df, clean_df, [
         ('botanist_name', 'botanist', 'name'),
@@ -79,3 +82,5 @@ if __name__ == "__main__":
     cleaned = main_transform()
 
     print(cleaned.info())
+    print(cleaned['scientific_name'].head(50))
+    print(cleaned.head(10))
