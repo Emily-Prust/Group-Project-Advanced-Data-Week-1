@@ -25,12 +25,12 @@ FIELD_NAMES = ['plant_id', 'name', 'error', 'temperature', 'soil_moisture', 'las
                'origin_location', 'images']
 
 
-async def extract_plant_data() -> list[dict]:
+async def extract_plant_data(plant_id_start: int = 1,
+                             plant_id_end: int = 50,
+                             ) -> list[dict]:
     """Extract all plant data."""
 
     # Current plant IDs range from 1 to 50, this may need to be updated in the future.
-    plant_id_start = 1
-    plant_id_end = 50
 
     async with aiohttp.ClientSession() as session:  # Running all the time.
 
