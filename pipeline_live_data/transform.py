@@ -1,6 +1,7 @@
 """Transforming the extracted data."""
 
 import ast
+
 import pandas as pd
 
 from extract import CSV_NAME
