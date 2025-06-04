@@ -77,5 +77,3 @@ resource "aws_lambda_function" "pipeline-lambda" {
   image_uri     = data.aws_ecr_image.pipeline-lambda-image-version.image_uri
   timeout       = 900
 }
-
-# remove
