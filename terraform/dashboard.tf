@@ -29,6 +29,7 @@ resource "aws_cloudwatch_log_group" "dashboard-log-group" {
 }
 
 # Dashboard Task Definition
+# TODO: add environment variables to task definition
 
 resource "aws_ecs_task_definition" "dashboard-task" {
   family                   = "c17-allum-td-dashboard"
