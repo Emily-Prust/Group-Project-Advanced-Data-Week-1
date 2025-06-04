@@ -22,6 +22,12 @@ data "aws_ecs_cluster" "ecs-cluster" {
   cluster_name = "c17-ecs-cluster"
 }
 
+# Log group
+
+resource "aws_cloudwatch_log_group" "dashboard-log-group" {
+  name = "/ecs/c17-allum-dashboard"
+}
+
 # Dashboard Task Definition
 
 resource "aws_ecs_task_definition" "dashboard-task" {
@@ -45,7 +51,15 @@ resource "aws_ecs_task_definition" "dashboard-task" {
           hostPort      = 8501
         }
       ]
-      # Add logs
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+            awslogs-group = aws_cloudwatch_log_group.dashboard-log-group.name
+            awslogs-region = var.REGION
+            awslogs-stream-prefix = "ecs"
+        }
+      }
       # Add env variables
     }
   ])
