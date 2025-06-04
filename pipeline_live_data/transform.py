@@ -51,6 +51,14 @@ def create_columns_from_dict_strings(orig_df: pd.DataFrame,
     return new_df
 
 
+def create_timestamps(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Returns a dataframe with columns converted to timestamps."""
+
+    for col in cols:
+        df[col] = pd.to_datetime(df[col], utc=True)
+    return df
+
+
 def main_transform() -> pd.DataFrame:
     """Returns a clean and processed dataframe."""
 
@@ -74,6 +82,7 @@ def main_transform() -> pd.DataFrame:
         ('country_name', 'origin_location', 'country')
     ])
 
+    clean_df = create_timestamps(clean_df, ['at', 'received_at'])
     return clean_df
 
 
@@ -82,5 +91,5 @@ if __name__ == "__main__":
     cleaned = main_transform()
 
     print(cleaned.info())
-    print(cleaned['scientific_name'].head(50))
+    print(cleaned['received_at'].head(50))
     print(cleaned.head(10))
