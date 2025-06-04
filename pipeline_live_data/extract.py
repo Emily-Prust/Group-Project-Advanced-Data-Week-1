@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 
 from aiohttp import ClientSession
 
-# delete
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
