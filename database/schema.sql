@@ -86,28 +86,8 @@ CREATE TABLE "plant" (
     botanist_id SMALLINT NOT NULL,
     origin_id SMALLINT NOT NULL,
     plant_name VARCHAR(100) NOT NULL,
-    scientific_name VARCHAR(100) NOT NULL,
+    scientific_name VARCHAR(100),
     PRIMARY KEY (plant_id),
     FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
     FOREIGN KEY (origin_id) REFERENCES origin(origin_id)
 );
-
--- Seed data
-
-INSERT INTO botanist (botanist_name, botanist_email, botanist_phone) VALUES
-('botanist_name_1', 'botanist_email_1', 'botanist_phone_number_1'),
-('botanist_name_2', 'botanist_email_2', 'botanist_phone_number_2');
-
-INSERT INTO origin (origin_latitude, origin_longitude, city_id) VALUES
-(0.0, 0.0, 'example_city_id_1'),
-(0.0, 0.0, 'example_city_id_2');
-
-
-INSERT INTO city (city_name, country_id) VALUES
-('city_1', 'country_id_1'),
-('city_2', 'country_id_2');
-
-
-INSERT INTO country (country_name) VALUES
-('country_1'),
-('country_2');
