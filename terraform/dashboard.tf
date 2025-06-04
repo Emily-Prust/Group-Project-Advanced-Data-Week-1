@@ -12,7 +12,7 @@ resource "aws_ecr_repository" "dashboard-td-image-repo" {
 # Image for dashboard to run
 
 data "aws_ecr_image" "dashboard-td-image-version" {
-  repository_name = aws_ecr_repository.dashboard-td-image-repo
+  repository_name = aws_ecr_repository.dashboard-td-image-repo.name
   image_tag       = "latest"
 }
 
@@ -45,7 +45,67 @@ resource "aws_ecs_task_definition" "dashboard-task" {
           hostPort      = 8501
         }
       ]
-      
+      # Add logs
+      # Add env variables
     }
   ])
+}
+
+# VPC and subnets
+
+data "aws_vpc" "c17-vpc" {
+  id = "vpc-00b3f6b2893c390f2"
+}
+
+data "aws_subnet" "public-subnet-1" {
+  id = "subnet-02fed49230af8b602"
+}
+
+data "aws_subnet" "public-subnet-2" {
+  id = "subnet-00c8d9ab175e125f9"
+}
+
+data "aws_subnet" "public-subnet-3" {
+  id = "subnet-08d9dabb018bb400b"
+}
+
+# ECS Service
+
+resource "aws_ecs_service" "dashboard-service" {
+  name             = "c17-allum-ecs-service-dashboard"
+  cluster          = data.aws_ecs_cluster.ecs-cluster.id
+  task_definition  = aws_ecs_task_definition.dashboard-task.arn
+  desired_count    = 1
+  launch_type      = "FARGATE"
+  platform_version = "LATEST"
+
+  network_configuration {
+    subnets          = [data.aws_subnet.public-subnet-1.id, data.aws_subnet.public-subnet-2.id, data.aws_subnet.public-subnet-3.id]
+    security_groups  = [aws_security_group.dashboard-sg.id]
+    assign_public_ip = true
+  }
+}
+
+resource "aws_security_group" "dashboard-sg" {
+  name        = "c17-allum-sg-dashboard"
+  description = "Allow HTTP access to dashboard."
+  vpc_id      = data.aws_vpc.c17-vpc.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "dashboard-http-ingress" {
+  security_group_id = aws_security_group.dashboard-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 8501
+  to_port           = 8501
+  ip_protocol       = "tcp"
+  description       = "Allow HTTP access from anywhere"
+}
+
+resource "aws_vpc_security_group_egress_rule" "dashboard-all-egress" {
+  security_group_id = aws_security_group.dashboard-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 0
+  to_port           = 0
+  ip_protocol       = "-1"
+  description       = "Allow all outbound traffic"
 }
