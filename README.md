@@ -22,4 +22,4 @@ Project Manager - Raphael
 
 ## Stakeholders
 
-## Technology
+## Technologies
