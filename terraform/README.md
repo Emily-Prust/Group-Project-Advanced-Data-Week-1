@@ -6,8 +6,8 @@ All terraform files for the project are inside this folder.
 
 Create a `terraform.tfvars` file locally, and populate it with:
 
-- AWS_ACCESS_KEY - AWS IAM access key
-- AWS_SECRET_KEY - The corresponding secret key for the above IAM user
+- ACCESS_KEY - AWS IAM access key
+- SECRET_KEY - The corresponding secret key for the above IAM user
 
 Note: `terraform init` has been run.
 
