@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "dashboard-task" {
   container_definitions = jsonencode([
     {
       name      = "dashboard"
-      image     = data.aws_ecr_image.dashboard-td-image-version
+      image     = data.aws_ecr_image.dashboard-td-image-version.image_uri
       cpu       = 256
       memory    = 512
       essential = true
@@ -55,9 +55,9 @@ resource "aws_ecs_task_definition" "dashboard-task" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-            awslogs-group = aws_cloudwatch_log_group.dashboard-log-group.name
-            awslogs-region = var.REGION
-            awslogs-stream-prefix = "ecs"
+          awslogs-group         = aws_cloudwatch_log_group.dashboard-log-group.name
+          awslogs-region        = var.REGION
+          awslogs-stream-prefix = "ecs"
         }
       }
       # Add env variables
