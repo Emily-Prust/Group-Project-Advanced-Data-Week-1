@@ -3,9 +3,20 @@
 import os
 import csv
 import asyncio
+import logging
 from datetime import datetime, timezone
 
-import aiohttp
+from aiohttp import ClientSession
+
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level="DEBUG",
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S"
+)
+
 
 BASE_URL = 'https://sigma-labs-bot.herokuapp.com/api/plants/'
 CSV_NAME = 'raw_plants.csv'
@@ -14,22 +25,37 @@ FIELD_NAMES = ['plant_id', 'name', 'error', 'temperature', 'soil_moisture', 'las
                'origin_location', 'images']
 
 
-async def extract_plant_data() -> list[dict]:
+async def extract_plant_data(plant_id_start: int = 1,
+                             plant_id_end: int = 50,
+                             ) -> list[dict]:
     """Extract all plant data."""
 
-    async with aiohttp.ClientSession() as session:  # Running all the time
+    # Current plant IDs range from 1 to 50, this may need to be updated in the future.
 
-        plants = [extract_single_plant_data(i, session) for i in range(51)]
+    async with ClientSession() as session:  # Running all the time.
+
+        plants = [extract_single_plant_data(
+            i, session) for i in range(plant_id_start, plant_id_end+1)]
         plant_data = await asyncio.gather(*plants)
 
-    print("Finished all plants")
+    logger.info(
+        "Completed API calls for plants with plant_id in the range "
+        "{%s} - {%s}.",
+        plant_id_start,
+        plant_id_end
+        )
+
     return plant_data
 
 
-async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSession) -> dict:
+async def extract_single_plant_data(plant_id: int, session: ClientSession) -> dict:
     """Extracts plant data for a given id. """
 
-    print(f"Started plant {plant_id}.")
+    logger.debug(
+        "Started function extract_single_plant() for plant_id %s.",
+        plant_id
+        )
+
     response = await session.get(f'{BASE_URL}{plant_id}')
 
     html = await response.json()
@@ -38,8 +64,20 @@ async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSessio
         html['received_at'] = datetime.now(
             timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-    print("Status:", response.status)
-    print(f"Finished plant {plant_id}.")
+    logger.info("Made API call for plant_id: %s. Status code: %s.",
+                plant_id,
+                response.status)
+
+    if not html["plant_id"]:
+        logger.warning(
+            "Received unexpected result. Request to %s missing plant_id key.",
+            f"{BASE_URL}{plant_id}")
+
+    logger.debug(
+        "Finished function extract_single_plant() for plant_id %s.",
+        plant_id
+    )
+
     return html
 
 
