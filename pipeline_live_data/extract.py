@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from aiohttp import ClientSession
 
-
+# delete
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -43,7 +43,7 @@ async def extract_plant_data(plant_id_start: int = 1,
         "{%s} - {%s}.",
         plant_id_start,
         plant_id_end
-        )
+    )
 
     return plant_data
 
@@ -54,7 +54,7 @@ async def extract_single_plant_data(plant_id: int, session: ClientSession) -> di
     logger.debug(
         "Started function extract_single_plant() for plant_id %s.",
         plant_id
-        )
+    )
 
     response = await session.get(f'{BASE_URL}{plant_id}')
 
