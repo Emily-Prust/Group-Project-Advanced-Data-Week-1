@@ -1,88 +1,70 @@
 -- This file contains all the code required to create & seed the database tables.
 
+
+-- Switches to the plants database.
+
+USE plants;
+
+
 -- Drop all Tables
 
 DROP TABLE IF EXISTS measurement;
-DROP TABLE IF EXISTS botanist;
 DROP TABLE IF EXISTS botanist_assignment;
-DROP TABLE IF EXISTS error;
 DROP TABLE IF EXISTS plant_error;
-DROP TABLE IF EXISTS country;
-DROP TABLE IF EXISTS city;
-DROP TABLE IF EXISTS origin;
 DROP TABLE IF EXISTS plant;
+DROP TABLE IF EXISTS origin;
+DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS country;
+DROP TABLE IF EXISTS error;
+DROP TABLE IF EXISTS botanist;
 
 
 -- Create Tables
 
-CREATE TABLE "measurement" (
-    measurement_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    plant_id SMALLINT NOT NULL,
-    temperature FLOAT NOT NULL,
-    soil_moisture FLOAT NOT NULL,
-    last_watered TIMESTAMP NOT NULL,
-    [at] TIMESTAMP NOT NULL,
-    PRIMARY KEY (measurement_id),
-    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
-);
-
 CREATE TABLE "botanist" (
-    botanist_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    botanist_id SMALLINT IDENTITY(1,1),
     botanist_name VARCHAR(50) NOT NULL,
     botanist_email VARCHAR(40) NOT NULL UNIQUE,
     botanist_phone VARCHAR(11) NOT NULL UNIQUE,
     PRIMARY KEY (botanist_id)
 );
-
-CREATE TABLE "botanist_assignment" (
-    assignment_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    botanist_id SMALLINT NOT NULL,
-    plant_id SMALLINT NOT NULL,
-    PRIMARY KEY (assignment_id),
-    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
-    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
-);
+GO
 
 CREATE TABLE "error" (
-    error_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    error_id SMALLINT IDENTITY(1,1),
     error_name VARCHAR(50) NOT NULL,
     PRIMARY KEY (error_id)
 );
-
-CREATE TABLE "plant_error" (
-    plant_error_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    plant_id SMALLINT NOT NULL,
-    error_id SMALLINT NOT NULL,
-    received_at TIMESTAMP NOT NULL,
-    PRIMARY KEY (plant_error_id),
-    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
-);
+GO
 
 CREATE TABLE "country" (
-    country_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    country_id SMALLINT IDENTITY(1,1),
     country_name VARCHAR(60) NOT NULL,
     PRIMARY KEY (country_id)
 );
+GO
 
 CREATE TABLE "city" (
-    city_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    city_id SMALLINT IDENTITY(1,1),
     city_name VARCHAR(200) NOT NULL,
     country_id SMALLINT NOT NULL,
     PRIMARY KEY (city_id),
     FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
+GO
 
 CREATE TABLE "origin" (
-    origin_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    origin_id SMALLINT IDENTITY(1,1),
     origin_latitude FLOAT NOT NULL,
     origin_longitude FLOAT NOT NULL,
     city_id SMALLINT NOT NULL,
     PRIMARY KEY (origin_id),
     FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
+GO
 
 CREATE TABLE "plant" (
-    plant_id SMALLINT GENERATED ALWAYS AS IDENTITY,
+    plant_id SMALLINT IDENTITY(1,1),
     botanist_id SMALLINT NOT NULL,
     origin_id SMALLINT NOT NULL,
     plant_name VARCHAR(100) NOT NULL,
@@ -91,3 +73,36 @@ CREATE TABLE "plant" (
     FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
     FOREIGN KEY (origin_id) REFERENCES origin(origin_id)
 );
+GO
+
+CREATE TABLE "plant_error" (
+    plant_error_id SMALLINT IDENTITY(1,1),
+    plant_id SMALLINT NOT NULL,
+    error_id SMALLINT NOT NULL,
+    received_at DATETIME NOT NULL,
+    PRIMARY KEY (plant_error_id),
+    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
+);
+GO
+
+CREATE TABLE "botanist_assignment" (
+    assignment_id SMALLINT IDENTITY(1,1),
+    botanist_id SMALLINT NOT NULL,
+    plant_id SMALLINT NOT NULL,
+    PRIMARY KEY (assignment_id),
+    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
+    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
+);
+GO
+
+CREATE TABLE "measurement" (
+    measurement_id SMALLINT IDENTITY(1,1),
+    plant_id SMALLINT NOT NULL,
+    temperature FLOAT NOT NULL,
+    soil_moisture FLOAT NOT NULL,
+    last_watered DATETIME NOT NULL,
+    [at] DATETIME NOT NULL,
+    PRIMARY KEY (measurement_id),
+    FOREIGN KEY (plant_id) REFERENCES plant(plant_id)
+);
+GO
