@@ -6,7 +6,7 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
-import aiohttp
+from aiohttp import ClientSession
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ async def extract_plant_data(plant_id_start: int = 1,
 
     # Current plant IDs range from 1 to 50, this may need to be updated in the future.
 
-    async with aiohttp.ClientSession() as session:  # Running all the time.
+    async with ClientSession() as session:  # Running all the time.
 
         plants = [extract_single_plant_data(
             i, session) for i in range(plant_id_start, plant_id_end+1)]
@@ -48,7 +48,7 @@ async def extract_plant_data(plant_id_start: int = 1,
     return plant_data
 
 
-async def extract_single_plant_data(plant_id: int, session: aiohttp.ClientSession) -> dict:
+async def extract_single_plant_data(plant_id: int, session: ClientSession) -> dict:
     """Extracts plant data for a given id. """
 
     logger.debug(
