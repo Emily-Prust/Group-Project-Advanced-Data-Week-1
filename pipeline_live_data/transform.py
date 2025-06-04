@@ -25,7 +25,7 @@ def replace_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fix_type_of_string_dicts(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Changes the type of dict-like like strings to dicts."""
+    """Changes the type of dict-like strings to dicts."""
 
     for col in cols:
         df[col] = df[col].apply(
