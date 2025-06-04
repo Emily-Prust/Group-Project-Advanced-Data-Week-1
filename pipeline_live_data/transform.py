@@ -105,5 +105,5 @@ if __name__ == "__main__":
 
     cleaned = main_transform()
 
-    print(cleaned.info())
-    print(cleaned.head())
+    logger.info(cleaned.info())
+    logger.info(cleaned.head())
