@@ -14,7 +14,7 @@ def get_df_from_csv(filename: str) -> pd.DataFrame:
 def replace_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Drop and rename columns in a given dataframe."""
 
-    df = df.drop(columns=['images', 'scientific_name'])
+    df = df.drop(columns=['images'])
     df = df.rename(columns={
         'name': 'plant_name',
         'error': 'error_name'
@@ -50,29 +50,32 @@ def create_columns_from_dict_strings(orig_df: pd.DataFrame,
     return new_df
 
 
-if __name__ == "__main__":
+def main_transform() -> pd.DataFrame:
+    """Returns a clean and processed dataframe."""
 
     df = get_df_from_csv(CSV_NAME)
 
     df = replace_columns(df)
     df = fix_type_of_string_dicts(df, ['botanist', 'origin_location'])
 
-    clean_df = df[['plant_id', 'plant_name', 'error_name', 'temperature',
+    clean_df = df[['plant_id', 'plant_name', 'scientific_name', 'error_name', 'temperature',
                    'soil_moisture', 'last_watered', 'recording_taken', 'received_at']].copy()
 
-    # clean_df['botanist_name'] = df['botanist'].apply(
-    #     lambda x: x.get('name') if isinstance(x, dict) else None)
+    clean_df = create_columns_from_dict_strings(df, clean_df, [
+        ('botanist_name', 'botanist', 'name'),
+        ('botanist_email', 'botanist', 'email'),
+        ('botanist_phone', 'botanist', 'phone'),
+        ('origin_latitude', 'origin_location', 'latitude'),
+        ('origin_longitude', 'origin_location', 'longitude'),
+        ('city_name', 'origin_location', 'city'),
+        ('country_name', 'origin_location', 'country')
+    ])
 
-    # clean_df['botanist_email'] = df['botanist'].apply(
-    #     lambda x: x.get('email') if isinstance(x, dict) else None)
+    return clean_df
 
-    # clean_df['origin_latitude'] = df['origin_location'].apply(
-    #     lambda x: x.get('latitude') if isinstance(x, dict) else None)
 
-    clean_df = create_columns_from_dict_strings(df, clean_df, [(
-        'botanist_name', 'botanist', 'name'), ('botanist_email', 'botanist', 'email')])
+if __name__ == "__main__":
 
-    print(df.info())
-    print(clean_df.info())
-    print(clean_df['botanist_name'].head(10))
-    print(clean_df['botanist_email'].head(10))
+    cleaned = main_transform()
+
+    print(cleaned.info())
