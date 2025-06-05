@@ -4,6 +4,12 @@ provider "aws" {
   secret_key = var.SECRET_KEY
 }
 
+# S3 Bucket
+
+resource "aws_s3_bucket" "archived-s3" {
+  bucket = "c17-allum-s3-archived-data"
+}
+
 # ECR Repository for archived data image
 
 data "aws_ecr_repository" "archived-lambda-image-repo" {
@@ -78,12 +84,6 @@ resource "aws_lambda_function" "archived-lambda" {
   package_type  = "Image"
   image_uri     = data.aws_ecr_image.archived-lambda-image-version.image_uri
   timeout       = 900
-}
-
-# S3 Bucket
-
-resource "aws_s3_bucket" "archived-s3" {
-  bucket = "c17-allum-s3-archived-data"
 }
 
 # EventBridge
