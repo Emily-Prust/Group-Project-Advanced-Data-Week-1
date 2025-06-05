@@ -212,7 +212,6 @@ def seed_plant_table(connection: pyodbc.Connection,
     - If origin, easy link, same as normal
     - If no origin, insert into origin table entries w/o
       lat/long but with just city ID.
-    
     """
     pass
 
@@ -337,19 +336,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
 
-    load_dotenv()
-    main_dataframe = main_transform()
-    connection = get_database_connection()
+    # load_dotenv()
+    # main_dataframe = main_transform()
+    # connection = get_database_connection()
 
-    print(main_dataframe.columns)
-
-    botanist_info = filter_to_botanist_information(main_dataframe)
-    print(botanist_info["botanist_email"])
-    # seed_botanist_table(connection, botanist_info)
-
-
-    # city_ids = get_city_ids(connection)
-    # origin_info = filter_to_origin_information(main_dataframe, city_ids)
-    # seed_origin_table(connection, origin_info)
+    # print(main_dataframe.columns)
