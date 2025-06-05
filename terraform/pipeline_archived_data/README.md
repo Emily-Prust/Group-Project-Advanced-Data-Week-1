@@ -11,6 +11,14 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 ## Resources provisioned
 
+#### IAM Role & Policies:
+- Permissions for CloudWatch Logs.
+
+#### Lambda Function:
+- `c17-allum-lambda-archived-terraform`.
+- Retrieves oldest one hour of data and removes it from the database before uploading to S3.
+- Scheduled to run every hour via EventBridge.
+- Runs the latest image from `c17-allum-ecr-archived-terraform`.
 
 ## Provisioning Resources
 

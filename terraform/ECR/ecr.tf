@@ -25,3 +25,14 @@ resource "aws_ecr_repository" "dashboard-td-image-repo" {
     encryption_type = "AES256"
   }
 }
+
+# ECR Repository for archived data image
+
+resource "aws_ecr_repository" "archived-lambda-image-repo" {
+  name                 = "c17-allum-ecr-archived-terraform"
+  image_tag_mutability = "MUTABLE"
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+}
