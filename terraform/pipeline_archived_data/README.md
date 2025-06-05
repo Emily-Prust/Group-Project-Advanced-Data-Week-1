@@ -29,6 +29,7 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 - Add environment variables to the lambda resource once known.
 - Lambda may need `vpc_config` block to access RDS.
+- S3 may need `aws_s3_bucket_policy` resource to allow lambda write access.
 
 ## Provisioning Resources
 
