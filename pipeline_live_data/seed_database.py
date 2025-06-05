@@ -157,7 +157,6 @@ def get_city_ids(database_connection:  pyodbc.Connection) -> None:
 def filter_to_origin_information(main_dataframe: pd.DataFrame,
                                  city_ids: pd.DataFrame) -> pd.DataFrame:
     """Returns all the origin information needed for the database."""
-    # lat, long NOT city here, that's dealt with in plant functions.
 
     origin_data = main_dataframe[['origin_latitude',
                                   'origin_longitude',
@@ -241,12 +240,21 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
 
 def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
     """Prepares data to be uploaded to the database."""
-    pass
+    return main_dataframe[['botanist_name', 'botanist_email', 'botanist_phone']].drop_duplicates().dropna()
 
 
-def seed_botanist_table(botanist_information: pd.DataFrame) -> None:
+def seed_botanist_table(database_connection: pyodbc.Connection,
+                        botanist_information: pd.DataFrame) -> None:
     """Uploads botanist information to the database."""
-    pass
+
+    q = """
+        INSERT INTO botanist(botanist_name, botanist_email, botanist_phone) VALUES (?, ?, ?)
+        """
+# INSERT INTO botanist(botanist_name, botanist_email, botanist_phone) VALUES ('Kenneth Buckridge', 'kenneth.buckridge@lnhm.co.uk', '763.914.8635 x57724')
+    params = [(val[0], val[1], val[2]) for val in botanist_information.values]
+    logger.debug("Botanist data to upload:\n%s", params)
+
+    upload_to_database(database_connection, q, params, "botanist")
 
 
 def seed_botanist_and_assignment_tables(connection: pyodbc.Connection,
@@ -261,7 +269,7 @@ def seed_botanist_and_assignment_tables(connection: pyodbc.Connection,
 
 
 #####################
-# General functions #
+# General Functions #
 #####################
 
 def test_connection(connection: pyodbc.Connection) -> None:
@@ -335,10 +343,11 @@ if __name__ == "__main__":
     main_dataframe = main_transform()
     connection = get_database_connection()
 
-    print(main_dataframe.columns)
+    # print(main_dataframe.columns)
 
-    # botanist_info = filter_to_botanist_information(main_dataframe)
-    # seed_botanist_table(connection, botanist_info)
+    botanist_info = filter_to_botanist_information(main_dataframe)
+    seed_botanist_table(connection, botanist_info)
+
 
     # city_ids = get_city_ids(connection)
     # origin_info = filter_to_origin_information(main_dataframe, city_ids)
