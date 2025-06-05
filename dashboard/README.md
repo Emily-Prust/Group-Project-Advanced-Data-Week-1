@@ -15,3 +15,17 @@ Also included is `/homepage.py` which is what actually runs the dashboard.
 ## Developer Resources
 [Streamlit multipage apps documentation](https://docs.streamlit.io/develop/concepts/multipage-apps/overview#page-terminology)  
 [Streamlit `pages/` directory documentation](https://docs.streamlit.io/develop/concepts/multipage-apps/pages-directory)
+
+## Wireframe
+### LNHM Botanical Live Dashboard Page
+![alt text](image-1.png)
+
+### LNHM Botanical Archive Dashboard Page
+![alt text](image.png)
+
+
+## Dashboard Requirements
+
+- To be able to view the data in real-time
+- View graphs of the latest temperature and moisture readings for every plant
+- To be able to view the data from the long-term storage
