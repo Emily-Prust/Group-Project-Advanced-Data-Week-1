@@ -6,8 +6,11 @@ All terraform files for the project are inside this folder.
 
 Create a `terraform.tfvars` file locally, and populate it with:
 
-- ACCESS_KEY - AWS IAM access key
-- SECRET_KEY - The corresponding secret key for the above IAM user
+- ACCESS_KEY - AWS IAM access key.
+- SECRET_KEY - The corresponding secret key for the above IAM user.
+- VPC_ID - The ID of the VPC you want to use.
+- SUBNET_ID_X - The ID's of subnets you want to use.
+
 
 Note: `terraform init` has been run.
 

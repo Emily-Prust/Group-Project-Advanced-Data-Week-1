@@ -69,19 +69,19 @@ resource "aws_ecs_task_definition" "dashboard-task" {
 # VPC and subnets
 
 data "aws_vpc" "c17-vpc" {
-  id = "vpc-00b3f6b2893c390f2"
+  id = var.VPC_ID
 }
 
 data "aws_subnet" "public-subnet-1" {
-  id = "subnet-02fed49230af8b602"
+  id = var.SUBNET_ID_1
 }
 
 data "aws_subnet" "public-subnet-2" {
-  id = "subnet-00c8d9ab175e125f9"
+  id = var.SUBNET_ID_2
 }
 
 data "aws_subnet" "public-subnet-3" {
-  id = "subnet-08d9dabb018bb400b"
+  id = var.SUBNET_ID_3
 }
 
 # ECS Service
