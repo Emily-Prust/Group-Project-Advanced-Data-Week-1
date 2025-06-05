@@ -1,18 +1,19 @@
+provider "aws" {
+  region     = var.REGION
+  access_key = var.ACCESS_KEY
+  secret_key = var.SECRET_KEY
+}
+
 # ECR Repository for dashboard image
 
-resource "aws_ecr_repository" "dashboard-td-image-repo" {
-  name                 = "c17-allum-ecr-dashboard-terraform"
-  image_tag_mutability = "MUTABLE"
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
+data "aws_ecr_repository" "dashboard-td-image-repo" {
+  name = "c17-allum-ecr-dashboard-terraform"
 }
 
 # Image for dashboard to run
 
 data "aws_ecr_image" "dashboard-td-image-version" {
-  repository_name = aws_ecr_repository.dashboard-td-image-repo.name
+  repository_name = data.aws_ecr_repository.dashboard-td-image-repo.name
   image_tag       = "latest"
 }
 

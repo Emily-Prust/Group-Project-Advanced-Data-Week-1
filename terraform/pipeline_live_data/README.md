@@ -1,0 +1,21 @@
+# `/terraform/pipeline_live_data`
+
+All terraform files to provision the resources for the live data pipeline are here.
+
+## Set up
+
+Create a `terraform.tfvars` file locally, and populate it with:
+
+- ACCESS_KEY - AWS IAM access key.
+- SECRET_KEY - The corresponding secret key for the above IAM user.
+
+## Resources provisioned
+
+#### IAM Role & Policies:
+- Permissions for CloudWatch Logs.
+
+#### Lambda Function:
+- `c17-allum-lambda-pipeline-terraform`.
+- Runs the ETL Pipeline.
+- Scheduled to run every minute via EventBridge.
+- Runs the latest image from `c17-allum-ecr-pipeline-terraform`.
