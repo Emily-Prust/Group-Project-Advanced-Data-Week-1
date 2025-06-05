@@ -3,3 +3,4 @@ pylint
 aiohttp
 pandas
 pyodbc
+python-dotenv

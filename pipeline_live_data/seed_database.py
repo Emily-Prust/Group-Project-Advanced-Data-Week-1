@@ -3,9 +3,11 @@
 import ast
 import logging
 import json
+from os import environ as ENV
 
 import pandas as pd
 import pyodbc
+from dotenv import load_dotenv
 
 from extract import CSV_NAME
 from transform import main_transform
@@ -62,9 +64,11 @@ def create_json_from_dfs(df: pd.DataFrame) -> None:
         json.dump(tables, f, indent=4)
 
 
+def get_database_connection() -> pyodbc.Connection:
+    """Establish a connection with the database."""
 
+    logger.info("Connecting to the database.")
 
-def get_database_connection():
     conn_str = (f"DRIVER={{{ENV['DB_DRIVER']}}};SERVER={ENV['DB_HOST']};"
                 f"PORT={ENV['DB_PORT']};DATABASE={ENV['DB_NAME']};"
                 f"UID={ENV['DB_USERNAME']};PWD={ENV['DB_PASSWORD']};Encrypt=no;")
@@ -86,7 +90,21 @@ def get_error_information(main_dataframe: pd.DataFrame,):
 def seed_error_table(error_information: pd.DataFrame,
                        connection:pyodbc.Connection) -> None:
     """Uploads the static error information to the database."""
-    pass
+
+    q = """
+        INSERT INTO Error(error_name) VALUES (%s);
+        """
+
+    with connection.cursor() as cur:
+        try:
+            connection.autocommit = False
+            cur.executemany(q, error_information.values)
+        except:
+            connection.rollback()
+        else:
+            connection.commit()
+        finally:
+            connection.autocommit = True
 
 
 ################################################
@@ -152,6 +170,10 @@ def upload_plant_and_location_tables(main_dataframe: pd.DataFrame,
 # Part 3: Upload Botanist Tables. #
 ###################################
 
+def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Prepares data to be uploaded to the database."""
+    pass
+
 
 def seed_botanist_table(botanist_information: pd.DataFrame) -> None:
     """Uploads botanist information to the database."""
@@ -165,7 +187,7 @@ def upload_botanist_and_assignment_tables(main_dataframe: pd.DataFrame,
     including which plants they work with.
     """
     botanist_info = filter_to_botanist_information(main_dataframe)
-    seed_botanist_table()
+    seed_botanist_table(botanist_info, connection)
 
 
 def seed_appropriate_tables(main_dataframe: pd.DataFrame,
@@ -190,8 +212,29 @@ def handler():
     logger.info(create_json_from_dfs(cleaned))
     # logger.info(create_separate_dfs(cleaned))
 
+def test_connection(connection: pyodbc.Connection) -> None:
+    """Logs the connection's status."""
+
+    with conn.cursor() as cur:
+        q = "SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';"
+        cur.execute(q)
+        data = cur.fetchmany()
+    logger.info("Test connection received %s.", data)
+
 
 if __name__ == "__main__":
+
+    load_dotenv()
+
     all_data = main_transform()
-    print(all_data)
-    print(get_error_information(all_data))
+
+    error_info = get_error_information(all_data)
+    logger.debug("Sensor error values: %s", error_info.values)
+
+    conn = get_database_connection()
+    test_connection(conn)
+    
+    seed_error_table(conn, error_info)
+
+    conn.close()
+    logger.info("Database connection closed.")
