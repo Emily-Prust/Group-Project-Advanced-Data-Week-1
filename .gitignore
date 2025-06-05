@@ -102,3 +102,4 @@ terraform.tfstate.*
 .env
 
 *_plants.csv
+*.json
