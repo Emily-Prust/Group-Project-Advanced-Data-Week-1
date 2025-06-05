@@ -85,3 +85,24 @@ resource "aws_lambda_function" "archived-lambda" {
 resource "aws_s3_bucket" "archived-s3" {
   bucket = "c17-allum-s3-archived-data"
 }
+
+# EventBridge
+
+resource "aws_cloudwatch_event_rule" "hourly-lambda-trigger" {
+  name                = "c17-allum-hourly-lambda-trigger"
+  description         = "Triggers the archived data lambda every hour."
+  schedule_expression = "rate(1 hour)"
+}
+
+resource "aws_lambda_permission" "allow-eventbridge" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.archived-lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.hourly-lambda-trigger.arn
+}
+
+resource "aws_cloudwatch_event_target" "trigger-hourly-lambda" {
+  arn  = aws_lambda_function.archived-lambda.arn
+  rule = aws_cloudwatch_event_rule.hourly-lambda-trigger.name
+}
