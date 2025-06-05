@@ -29,6 +29,83 @@ resource "aws_cloudwatch_log_group" "dashboard-log-group" {
   name = "/ecs/c17-allum-dashboard"
 }
 
+# S3 bucket
+
+data "aws_s3_bucket" "archived-s3" {
+  bucket = "c17-allum-s3-archived-data"
+}
+
+# S3 Permissions for ECS
+
+resource "aws_iam_role" "ecs-task-role" {
+  name = "c17-allum-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "s3-access-policy" {
+  name        = "c17-allum-s3-access-policy"
+  description = "Allow ECS tasks to read from S3."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::c17-allum-s3-archived-data",
+          "arn:aws:s3:::c17-allum-s3-archived-data/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_s3_access" {
+  role       = aws_iam_role.ecs-task-role.name
+  policy_arn = aws_iam_policy.s3-access-policy.arn
+}
+
+# Execution Role
+
+resource "aws_iam_role" "ecs-execution-role" {
+  name = "c17-allum-ecs-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+  role       = aws_iam_role.ecs-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
 # Dashboard Task Definition
 # TODO: add environment variables to task definition
 
@@ -38,6 +115,8 @@ resource "aws_ecs_task_definition" "dashboard-task" {
   network_mode             = "awsvpc"
   cpu                      = "256"
   memory                   = "512"
+  task_role_arn            = aws_iam_role.ecs-task-role.arn
+  execution_role_arn       = aws_iam_role.ecs-execution-role.arn
 
   container_definitions = jsonencode([
     {
