@@ -11,7 +11,7 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 ## Resources provisioned
 
-#### IAM Role & Policies:
+#### IAM Role & Policies for Lambdas:
 - Permissions for CloudWatch Logs.
 
 #### Lambda Function:
