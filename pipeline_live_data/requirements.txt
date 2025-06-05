@@ -2,3 +2,4 @@ pytest
 pylint
 aiohttp
 pandas
+pyodbc

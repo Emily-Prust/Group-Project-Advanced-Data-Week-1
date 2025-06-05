@@ -8,6 +8,7 @@ import pandas as pd
 
 from extract import CSV_NAME
 
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -100,49 +101,6 @@ def main_transform() -> pd.DataFrame:
 
     clean_df = create_timestamps(clean_df, ['at', 'received_at'])
     return clean_df
-
-
-def create_separate_dfs(df: pd.DataFrame) -> tuple[pd.DataFrame]:
-    """Returns separate dataframes based on the tables in the erd."""
-
-    country_df = df[['country_name']].drop_duplicates()
-    city_df = df[['city_name']].drop_duplicates()
-    origin_df = df[['origin_latitude', 'origin_longitude']].drop_duplicates()
-    plant_df = df[['plant_id', 'plant_name',
-                   'scientific_name']].drop_duplicates()
-    botanist_df = df[['botanist_name', 'botanist_email',
-                      'botanist_phone']].drop_duplicates()
-    error_df = df[['error_name']].drop_duplicates()
-
-    return country_df, city_df, origin_df, plant_df, botanist_df, error_df
-
-
-def create_json_from_dfs(df: pd.DataFrame) -> None:
-    """Creates a json from the cleaned dataframe."""
-
-    country_df, city_df, origin_df, plant_df, botanist_df, error_df = create_separate_dfs(
-        df)
-
-    # tables = {
-    #     "Country": country_df.to_dict(orient='records'),
-    #     "City": city_df.to_dict(orient='records'),
-    #     "Origin": origin_df.to_dict(orient='records'),
-    #     "Plant": plant_df.to_dict(orient='records'),
-    #     "Botanist": botanist_df.to_dict(orient='records'),
-    #     "Error": error_df.to_dict(orient='records')
-    # }
-
-    tables = {
-        "Country": country_df.to_json(orient='records'),
-        "City": city_df.to_json(orient='records'),
-        "Origin": origin_df.to_json(orient='records'),
-        "Plant": plant_df.to_json(orient='records'),
-        "Botanist": botanist_df.to_json(orient='records'),
-        "Error": error_df.to_json(orient='records')
-    }
-
-    with open('table_seed.json', 'w', encoding='utf-8') as f:
-        json.dump(tables, f, indent=4)
 
 
 if __name__ == "__main__":
