@@ -3,5 +3,4 @@
 
 def test_example_for_pytest():
     """An example test to satisfy pytest."""
-
     assert True

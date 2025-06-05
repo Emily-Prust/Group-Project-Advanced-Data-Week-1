@@ -23,5 +23,5 @@ List of new columns:
 Setup steps:
 - New venv
 - Get requirements
-- Might need to brew install `unixodbc` as in [Dan's notes](https://github.com/Peritract/pymssql-example/tree/main/pyodbc%20example)
+- Brew install `unixodbc` as in [Dan's notes](https://github.com/Peritract/pymssql-example/tree/main/pyodbc%20example)
 - Make a .env file

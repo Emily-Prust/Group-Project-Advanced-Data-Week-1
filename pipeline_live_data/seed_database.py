@@ -78,20 +78,24 @@ def get_database_connection():
 # Part 1: Upload Error Table. #
 ###############################
 
-def upload_error_table(main_dataframe: pd.DataFrame,
+def get_error_information(main_dataframe: pd.DataFrame,):
+    """Collects a list of all known errors."""
+    return main_dataframe['error_name'].drop_duplicates().dropna()
+
+
+def seed_error_table(error_information: pd.DataFrame,
                        connection:pyodbc.Connection) -> None:
     """Uploads the static error information to the database."""
-
-    # Probably simple enough to not have sub-functions?
-
     pass
 
 
-#############################################
-# Part 2: Upload Plant and Location Tables. #
-#############################################
+################################################
+# Part 2: Upload Plant and Location Tables.    #
+# Note: develop last as some questions remain. #
+# TODO: Remove note!                           #
+################################################
 
-def upload_country_table(country_data: pd.DataFrame,
+def seed_country_table(country_data: pd.DataFrame,
                          database_connection: pyodbc.Connection) -> None:
     """Uploads country data to the database."""
     pass
@@ -102,7 +106,7 @@ def query_country_ids(database_connection:  pyodbc.Connection) -> None:
     pass
 
 
-def upload_city_table(city_data: pd.DataFrame,
+def seed_city_table(city_data: pd.DataFrame,
                       database_connection: pyodbc.Connection) -> None:
     """
     Uploads city data to the database.
@@ -111,53 +115,83 @@ def upload_city_table(city_data: pd.DataFrame,
     pass
 
 
-def get_country_ids():
+def get_country_ids() -> pd.DataFrame:
     """Queries the database to get a df with country & country_id."""
     pass
 
-def upload_city_table(country_data: pd.DataFrame,
+
+def create_city_dataframe(city_data: pd.DataFrame,
+                          country_id: pd.DataFrame) -> pd.DataFrame:
+    """Returns a df with city_name & country_id."""
+    pass
+
+
+def seed_city_table(country_data: pd.DataFrame,
                       database_connection: pyodbc.Connection) -> None:
-    """Q"""
+    """Uploads city data to the database."""
     pass
 
 
 def upload_plant_and_location_tables(main_dataframe: pd.DataFrame,
                                      connection:pyodbc.Connection) -> None:
-    """Uploads the static error information to the database."""
+    """Uploads the plant and location information to the database."""
 
-    upload_country_table(country_dataframe, connection)
+    seed_country_table(
+        main_dataframe["country_name"].drop_duplicates(),
+        connection
+    )
 
-    # 
     country_ids = get_country_ids(connection)
-    # Returns a df with city_name & country_id.
     city_dataframe = create_city_dataframe(main_dataframe, country_ids) 
-    # Uploads city data to the database.
-    upload_city_table(city_dataframe, connection)
-    # This needs
-    # This either needs a function that assigns each city its correct country
-    # or that to be handled in the query using something like:
-    # `country_id = country_id WHERE country_name = %s`
-    # if it's handled in the latter way, all the queries could be written
-    # then batch executed.
+    seed_city_table(city_dataframe, connection)
 
-    # I'm not certain where the JSON comes into this?
-    # Some of the code could be reused for splitting out the data?
-
-    pass
+    # TODO Origin (two types of query), Plant.
 
 
 ###################################
 # Part 3: Upload Botanist Tables. #
 ###################################
 
-if __name__ == "__main__":
 
+def seed_botanist_table(botanist_information: pd.DataFrame) -> None:
+    """Uploads botanist information to the database."""
+    pass
+
+
+def upload_botanist_and_assignment_tables(main_dataframe: pd.DataFrame,
+                                          connection:pyodbc.Connection) -> None:
+    """
+    Uploads the botanist information to the database,
+    including which plants they work with.
+    """
+    botanist_info = filter_to_botanist_information(main_dataframe)
+    seed_botanist_table()
+
+
+def seed_appropriate_tables(main_dataframe: pd.DataFrame,
+                            connection: pyodbc.Connection) -> None:
+    """Calls all the seed table functions."""
+
+    conn = ...
+
+    all_seed_data = ...
+
+    upload_botanist_and_assignment_tables(all_seed_data, conn)
+
+
+def handler():
+    """What should be run when the script is properly executed."""
+    
     cleaned = main_transform()
     logger.info(cleaned.info())
     logger.info(cleaned.head())
     logger.info(cleaned.columns)
 
-
-
     logger.info(create_json_from_dfs(cleaned))
     # logger.info(create_separate_dfs(cleaned))
+
+
+if __name__ == "__main__":
+    all_data = main_transform()
+    print(all_data)
+    print(get_error_information(all_data))
