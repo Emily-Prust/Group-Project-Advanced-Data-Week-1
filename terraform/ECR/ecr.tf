@@ -15,6 +15,8 @@ resource "aws_ecr_repository" "pipeline-lambda-image-repo" {
   }
 }
 
+#delete
+
 # ECR Repository for dashboard image
 
 resource "aws_ecr_repository" "dashboard-td-image-repo" {
