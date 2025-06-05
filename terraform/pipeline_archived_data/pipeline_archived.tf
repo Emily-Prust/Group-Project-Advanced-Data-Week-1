@@ -4,7 +4,7 @@ provider "aws" {
   secret_key = var.SECRET_KEY
 }
 
-# ECR Repository for pipeline image
+# ECR Repository for archived data image
 
 data "aws_ecr_repository" "archived-lambda-image-repo" {
   name = "c17-allum-ecr-archived-terraform"
@@ -63,7 +63,7 @@ resource "aws_iam_role_policy_attachment" "archived-lambda-role-policy-connectio
 # Lambda
 # TODO: add environment variables
 
-resource "aws_lambda_function" "pipeline-lambda" {
+resource "aws_lambda_function" "archived-lambda" {
   function_name = "c17-allum-lambda-archived-terraform"
   description   = "Retrieves oldest one hour of data and removes it from the database before uploading to S3. Triggered by an EventBridge."
   role          = aws_iam_role.archived-lambda-role.arn
@@ -73,4 +73,3 @@ resource "aws_lambda_function" "pipeline-lambda" {
 }
 
 # S3 Bucket
-
