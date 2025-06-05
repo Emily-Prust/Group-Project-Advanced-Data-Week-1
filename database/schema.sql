@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS botanist;
 
 CREATE TABLE "botanist" (
     botanist_id SMALLINT IDENTITY(1,1),
-    botanist_name VARCHAR(50) NOT NULL,
-    botanist_email VARCHAR(40) NOT NULL UNIQUE,
+    botanist_name VARCHAR(100) NOT NULL,
+    botanist_email VARCHAR(254) NOT NULL UNIQUE,
     botanist_phone VARCHAR(25) NOT NULL UNIQUE,
     PRIMARY KEY (botanist_id)
 );
