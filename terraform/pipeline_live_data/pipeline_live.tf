@@ -1,18 +1,19 @@
+provider "aws" {
+  region     = var.REGION
+  access_key = var.ACCESS_KEY
+  secret_key = var.SECRET_KEY
+}
+
 # ECR Repository for pipeline image
 
-resource "aws_ecr_repository" "pipeline-lambda-image-repo" {
-  name                 = "c17-allum-ecr-pipeline-terraform"
-  image_tag_mutability = "MUTABLE"
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
+data "aws_ecr_repository" "pipeline-lambda-image-repo" {
+  name = "c17-allum-ecr-pipeline-terraform"
 }
 
 # Image for lambda to run
 
 data "aws_ecr_image" "pipeline-lambda-image-version" {
-  repository_name = aws_ecr_repository.pipeline-lambda-image-repo.name
+  repository_name = data.aws_ecr_repository.pipeline-lambda-image-repo.name
   image_tag       = "latest"
 }
 

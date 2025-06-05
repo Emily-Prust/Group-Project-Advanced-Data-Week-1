@@ -11,9 +11,18 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - terraform/ECR
+          - terraform/dashboard
+          - terraform/pipeline_live_data
+          - terraform/pipeline_archived_data
+
+    name: Validate ${{ matrix.directory }}
     defaults:
       run:
-        working-directory: ./terraform
+        working-directory: ${{ matrix.directory }}
 
     steps:
       - name: Checkout repository
