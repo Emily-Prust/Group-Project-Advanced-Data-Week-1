@@ -8,4 +8,4 @@ A place to store architecture diagrams, and other diagrams related to our design
 
 ## ERD Diagram
 
-![alt text](ERD_Diagram.png)
+![ERD Diagram](ERD_Diagram.png)
