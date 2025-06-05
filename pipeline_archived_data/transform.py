@@ -9,28 +9,23 @@ Extracting gives us:
 Assuming we have a dataframe... :
 """
 
+from dotenv import load_dotenv
 
-from datetime import datetime, timedelta, timezone
-import pandas as pd
+from extract import get_plant_data, get_connection
 
 
-def get_file_data() -> dict:
-    """Returns a dict of file specific data."""
+def create_csv() -> dict:
+    """Creates a csv from the RDS data."""
 
-    current_time = datetime.now(timezone.utc)
-    start_window = current_time - timedelta(hours=24)
-    year = start_window.strftime('%Y')
-    month = start_window.strftime('%m')
-    day = start_window.strftime('%d')
+    db_conn = get_connection()
+    event_data = get_plant_data(db_conn)
 
-    filename = f'plants_{start_window.strftime('%H_%d-%m-%Y')}.csv'
-
-    return {
-        "start_window": start_window,
-        "file_name": filename,
-        "bucket_key": f"{year}/{month}/{day}/{filename}"
-    }
+    event_data['dataframe'].to_csv(event_data['file_name'], index=False)
+    db_conn.close()
+    return event_data
 
 
 if __name__ == "__main__":
-    print(get_file_data())
+
+    load_dotenv()
+    create_csv()
