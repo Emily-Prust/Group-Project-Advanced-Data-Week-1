@@ -11,6 +11,10 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 ## Resources provisioned
 
+#### S3 Bucket:
+- `c17-allum-s3-archived-data`.
+- Stores archived data.
+
 #### IAM Role & Policies:
 - Permissions for CloudWatch Logs.
 - Permissions for Lambda to write to S3.
@@ -21,9 +25,8 @@ Create a `terraform.tfvars` file locally, and populate it with:
 - Scheduled to run every hour via EventBridge.
 - Runs the latest image from `c17-allum-ecr-archived-terraform`.
 
-#### S3 Bucket:
-- `c17-allum-s3-archived-data`.
-- Stores archived data.
+#### Eventbridge:
+- Triggers the Lambda function every hour.
 
 ## To Do
 
