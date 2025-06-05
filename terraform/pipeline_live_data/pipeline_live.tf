@@ -4,16 +4,36 @@ provider "aws" {
   secret_key = var.SECRET_KEY
 }
 
-# ECR Repository for pipeline image
+# ECR Repository and image for pipeline lambda
 
 data "aws_ecr_repository" "pipeline-lambda-image-repo" {
   name = "c17-allum-ecr-pipeline-terraform"
 }
 
-# Image for lambda to run
-
 data "aws_ecr_image" "pipeline-lambda-image-version" {
   repository_name = data.aws_ecr_repository.pipeline-lambda-image-repo.name
+  image_tag       = "latest"
+}
+
+# ECR Repository and image for sensor errors lambda
+
+data "aws_ecr_repository" "sensor-errors-lambda-image-repo" {
+  name = "c17-allum-ecr-sensor-errors-terraform"
+}
+
+data "aws_ecr_image" "sensor-errors-lambda-image-version" {
+  repository_name = data.aws_ecr_repository.sensor-errors-lambda-image-repo.name
+  image_tag       = "latest"
+}
+
+# ECR Repository and image for measurement errors lambda
+
+data "aws_ecr_repository" "measurement-errors-lambda-image-repo" {
+  name = "c17-allum-ecr-measurement-errors-terraform"
+}
+
+data "aws_ecr_image" "measurement-errors-lambda-image-version" {
+  repository_name = data.aws_ecr_repository.measurement-errors-lambda-image-repo.name
   image_tag       = "latest"
 }
 
@@ -60,7 +80,7 @@ resource "aws_iam_role_policy_attachment" "lambda-role-policy-connection" {
   policy_arn = aws_iam_policy.lambda-role-permissions-policy.arn
 }
 
-# Lambda
+# Lambdas
 # TODO: add environment variables
 
 resource "aws_lambda_function" "pipeline-lambda" {
@@ -69,6 +89,24 @@ resource "aws_lambda_function" "pipeline-lambda" {
   role          = aws_iam_role.lambda-role.arn
   package_type  = "Image"
   image_uri     = data.aws_ecr_image.pipeline-lambda-image-version.image_uri
+  timeout       = 900
+}
+
+resource "aws_lambda_function" "sensor-errors-lambda" {
+  function_name = "c17-allum-lambda-sensor-errors-terraform"
+  description   = "Check for sensor errors every minute. Triggered by an EventBridge."
+  role          = aws_iam_role.lambda-role.arn
+  package_type  = "Image"
+  image_uri     = data.aws_ecr_image.sensor-errors-lambda-image-version.image_uri
+  timeout       = 900
+}
+
+resource "aws_lambda_function" "measurement-errors-lambda" {
+  function_name = "c17-allum-lambda-measurement-errors-terraform"
+  description   = "Check for measurement errors every minute. Triggered by an EventBridge."
+  role          = aws_iam_role.lambda-role.arn
+  package_type  = "Image"
+  image_uri     = data.aws_ecr_image.measurement-errors-lambda-image-version.image_uri
   timeout       = 900
 }
 
