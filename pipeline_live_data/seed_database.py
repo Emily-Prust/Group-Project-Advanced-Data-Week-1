@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from extract import CSV_NAME
 from transform import main_transform
 
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -35,33 +36,6 @@ def create_separate_dfs(df: pd.DataFrame) -> tuple[pd.DataFrame]:
 
     return country_df, city_df, origin_df, plant_df, botanist_df, error_df
 
-
-def create_json_from_dfs(df: pd.DataFrame) -> None:
-    """Creates a json from the cleaned dataframe."""
-
-    country_df, city_df, origin_df, plant_df, botanist_df, error_df = create_separate_dfs(
-        df)
-
-    # tables = {
-    #     "Country": country_df.to_dict(orient='records'),
-    #     "City": city_df.to_dict(orient='records'),
-    #     "Origin": origin_df.to_dict(orient='records'),
-    #     "Plant": plant_df.to_dict(orient='records'),
-    #     "Botanist": botanist_df.to_dict(orient='records'),
-    #     "Error": error_df.to_dict(orient='records')
-    # }
-
-    tables = {
-        "Country": country_df.to_json(orient='records'),
-        "City": city_df.to_json(orient='records'),
-        "Origin": origin_df.to_json(orient='records'),
-        "Plant": plant_df.to_json(orient='records'),
-        "Botanist": botanist_df.to_json(orient='records'),
-        "Error": error_df.to_json(orient='records')
-    }
-
-    with open('table_seed.json', 'w', encoding='utf-8') as f:
-        json.dump(tables, f, indent=4)
 
 
 def get_database_connection() -> pyodbc.Connection:
@@ -87,22 +61,27 @@ def get_error_information(main_dataframe: pd.DataFrame,):
     return main_dataframe['error_name'].drop_duplicates().dropna()
 
 
-def seed_error_table(error_information: pd.DataFrame,
-                       connection:pyodbc.Connection) -> None:
+def seed_error_table(connection: pyodbc.Connection, error_information: pd.Series) -> None:
     """Uploads the static error information to the database."""
 
     q = """
-        INSERT INTO Error(error_name) VALUES (%s);
+        INSERT INTO error(error_name) VALUES (?)
         """
+
+    params = [(val,) for val in error_information.values]
+    print(params)
 
     with connection.cursor() as cur:
         try:
             connection.autocommit = False
-            cur.executemany(q, error_information.values)
+            logger.info("Attempting to insert into error table.")
+            cur.executemany(q, params)
         except:
             connection.rollback()
+            logger.warning("Rollback triggered in seed_error_table().")
         else:
             connection.commit()
+            logger.info("Committing to database in seed_error_table().")
         finally:
             connection.autocommit = True
 

@@ -4,7 +4,7 @@
 import pytest
 import pandas as pd
 
-from test_seed_database import get_error_information
+from seed_database import get_error_information
 
 
 def test_get_error_information_1():
