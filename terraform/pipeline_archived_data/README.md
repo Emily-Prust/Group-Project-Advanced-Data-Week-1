@@ -11,6 +11,25 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 ## Resources provisioned
 
+#### IAM Role & Policies:
+- Permissions for CloudWatch Logs.
+- Permissions for Lambda to write to S3.
+
+#### Lambda Function:
+- `c17-allum-lambda-archived-terraform`.
+- Retrieves oldest one hour of data and removes it from the database before uploading to S3.
+- Scheduled to run every hour via EventBridge.
+- Runs the latest image from `c17-allum-ecr-archived-terraform`.
+
+#### S3 Bucket:
+- `c17-allum-s3-archived-data`.
+- Stores archived data.
+
+## To Do
+
+- Add environment variables to the lambda resource once known.
+- Lambda may need `vpc_config` block to access RDS.
+- S3 may need `aws_s3_bucket_policy` resource to allow lambda write access.
 
 ## Provisioning Resources
 
