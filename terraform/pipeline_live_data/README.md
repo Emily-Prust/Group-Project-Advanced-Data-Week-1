@@ -23,6 +23,7 @@ Create a `terraform.tfvars` file locally, and populate it with:
 ## To Do
 
 - Add environment variables to the lambda resource once known.
+- Lambda may need `vpc_config` block to access RDS.
 
 ## Provisioning Resources
 
