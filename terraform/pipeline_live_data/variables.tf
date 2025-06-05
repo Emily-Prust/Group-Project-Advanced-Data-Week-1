@@ -14,3 +14,7 @@ variable "SECRET_KEY" {
 variable "ACCOUNT_ID" {
   type = string
 }
+
+variable "EMAIL" {
+  type = string
+}

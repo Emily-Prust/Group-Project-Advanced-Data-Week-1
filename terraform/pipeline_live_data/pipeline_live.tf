@@ -42,14 +42,6 @@ data "aws_iam_policy_document" "lambda-role-permissions-policy-doc" {
     ]
     resources = ["arn:aws:logs:eu-west-2:${var.ACCOUNT_ID}:*"]
   }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "sns:Publish"
-    ]
-    resources = []
-  }
 }
 
 resource "aws_iam_role" "lambda-role" {
@@ -78,4 +70,16 @@ resource "aws_lambda_function" "pipeline-lambda" {
   package_type  = "Image"
   image_uri     = data.aws_ecr_image.pipeline-lambda-image-version.image_uri
   timeout       = 900
+}
+
+# SNS
+
+resource "aws_sns_topic" "alerts" {
+  name = "c17-allum-sns-pipeline-alerts"
+}
+
+resource "aws_sns_topic_subscription" "email-sub" {
+  topic_arn = aws_sns_topic.alerts.arn
+  protocol  = "email"
+  endpoint  = var.EMAIL
 }
