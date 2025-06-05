@@ -9,6 +9,14 @@ All terraform files for the project are inside this folder.
 - `/pipeline_archived_data` will provision resources for the archived data pipeline.
 - `/dashboard` will provision resources for the dashboard.
 
-## Set up
+## Set Up
 
-Run terraform apply in `/ECR` first as the resources in `/pipeline_live_data`, `/pipeline_archived_data`, `/dashboard` will rely on the ECR's provisioned there.
+Order to run terraform apply:
+1. `/ECR`
+2. `/pipeline_live_data`
+3. `/pipeline_archived_data`
+4. `/dashboard`
+
+## To Do
+
+Make a bash script to run apply in all folders to create all resources.
