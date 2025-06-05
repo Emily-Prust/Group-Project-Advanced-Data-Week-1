@@ -10,3 +10,7 @@ variable "ACCESS_KEY" {
 variable "SECRET_KEY" {
   type = string
 }
+
+variable "ACCOUNT_ID" {
+  type = string
+}
