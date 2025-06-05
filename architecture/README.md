@@ -4,4 +4,8 @@ A place to store architecture diagrams, and other diagrams related to our design
 
 ## Architecture Diagram
 
-![alt text](image.png)
+![Architecture Diagram](Architecture_Diagram.png)
+
+## ERD Diagram
+
+![ERD Diagram](ERD_Diagram.png)
