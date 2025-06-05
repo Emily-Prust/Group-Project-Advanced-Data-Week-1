@@ -1,6 +1,6 @@
-# `/terraform/ECR`
+# `/terraform/pipeline_archived_data`
 
-All terraform files to provision the ECR's are here.
+All terraform files to provision the resources for the archived data pipeline are here.
 
 ## Set up
 
@@ -11,13 +11,6 @@ Create a `terraform.tfvars` file locally, and populate it with:
 
 ## Resources provisioned
 
-#### ECR Repository: 
-- `c17-allum-ecr-pipeline-terraform`.
-- Stores the container image used by the ETL Lambda function.
-
-#### ECR Repository:
-- `c17-allum-ecr-dashboard-terraform`.
-- Stores the container image for the Streamlit dashboard.
 
 ## Provisioning Resources
 

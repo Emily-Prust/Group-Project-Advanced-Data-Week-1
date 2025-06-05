@@ -19,3 +19,14 @@ Create a `terraform.tfvars` file locally, and populate it with:
 - Runs the ETL Pipeline.
 - Scheduled to run every minute via EventBridge.
 - Runs the latest image from `c17-allum-ecr-pipeline-terraform`.
+
+## To Do
+
+- Add environment variables to the lambda resource once known.
+
+## Provisioning Resources
+
+To provision resources run the following commands:
+
+`terraform plan`  
+`terraform apply`
