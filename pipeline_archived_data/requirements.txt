@@ -1,2 +1,5 @@
 pytest
 pylint
+pandas
+pyodbc
+boto3
