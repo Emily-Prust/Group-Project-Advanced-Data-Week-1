@@ -117,6 +117,7 @@ def get_country_ids(database_connection: pyodbc.Connection) -> list[tuple]:
 def filter_to_city_information(main_dataframe: pd.DataFrame,
                                country_ids: dict) -> pd.DataFrame:
     """Returns all the city information needed for the database."""
+
     city_data = main_dataframe[['city_name', 'country_name']].drop_duplicates().dropna()
     city_data["country_id"] = city_data["country_name"].replace(country_ids)
     logger.debug("Country ID map:\n%s", country_ids)
@@ -142,21 +143,44 @@ def seed_city_table(database_connection: pyodbc.Connection,
 
 def get_city_ids(database_connection:  pyodbc.Connection) -> None:
     """Returns a list of countries with their assigned IDs."""
-    pass
+    with database_connection.cursor() as cur:
+        q = "SELECT city_id, city_name FROM city;"
+        cur.execute(q)
+        data = cur.fetchall()
+    logger.debug("get_city_ids received: %s.", data)
+
+    city_ids = {city[1]: city[0] for city in data}
+
+    return city_ids
 
 
 def filter_to_origin_information(main_dataframe: pd.DataFrame,
-                                 country_ids: pd.DataFrame) -> pd.DataFrame:
+                                 city_ids: pd.DataFrame) -> pd.DataFrame:
     """Returns all the origin information needed for the database."""
     # lat, long NOT city here, that's dealt with in plant functions.
-    pass
+
+    origin_data = main_dataframe[['origin_latitude',
+                                  'origin_longitude',
+                                  'city_name']].drop_duplicates().dropna()
+    origin_data["city_id"] = origin_data["city_name"].replace(city_ids)
+    logger.debug("City ID map:\n%s", city_ids)
+    logger.debug("Origin data:\n%s", origin_data)
+    return origin_data
 
 
-def seed_origin_table(connection: pyodbc.Connection,
-                      main_dataframe: pd.DataFrame,
+def seed_origin_table(database_connection: pyodbc.Connection,
+                      origin_data: pd.DataFrame,
                       ) -> None:
     """Uploads origin data to the database."""
-    pass
+
+    q = """
+        INSERT INTO origin(city_id, origin_latitude, origin_longitude) VALUES (?, ?, ?)
+        """
+    params = list(origin_data[["city_id", "origin_latitude", "origin_longitude"]
+                            ].itertuples(index=False, name=None))
+
+    logger.debug("Origin data to upload:\n%s", params)
+    upload_to_database(database_connection, q, params, "origin")
 
 
 # FOR PLANT
@@ -206,24 +230,13 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
     city_info = filter_to_city_information(main_dataframe, country_ids)
     seed_city_table(connection, city_info)
 
-
-    country_ids = get_country_ids(connection)
-
-
-    # country_ids = get_country_ids(connection)
-
-    # city_ids = get_city_ids()
-    # origin_info = filter_to_origin_information(main_dataframe, origin_info)
-    # seed_origin_table(connection, origin_info)
-
-    # city_ids = get_city_ids()
-    # plant_info = filter_to_plant_information(main_dataframe, origin_info)
-    # seed_origin_table(connection, origin_info)
+    city_ids = get_city_ids(connection)
+    origin_info = filter_to_origin_information(main_dataframe, origin_info)
+    seed_origin_table(connection, origin_info)
 
 
 ###################################
 # Part 3: Upload Botanist Tables. #
-# TODO                            #
 ###################################
 
 def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -273,10 +286,10 @@ def upload_to_database(connection: pyodbc.Connection,
             cur.executemany(query, parameters)
         except:
             connection.rollback()
-            logger.warning("Rollback triggered in seed_ %s_table().", table_name)
+            logger.warning("Rollback triggered in seed_%s_table().", table_name)
         else:
             connection.commit()
-            logger.info("Committing to database in seed_ %s _table().", table_name)
+            logger.info("Committing to database in seed_%s_table().", table_name)
         finally:
             connection.autocommit = True
 
@@ -292,7 +305,7 @@ def seed_appropriate_tables(connection: pyodbc.Connection,
 
     seed_plant_and_location_tables(connection, main_dataframe)
 
-    # seed_botanist_and_assignment_tables(connection, main_dataframe)
+    seed_botanist_and_assignment_tables(connection, main_dataframe)
 
 
 ########
@@ -317,3 +330,16 @@ def main():
 
 if __name__ == "__main__":
     # main()
+
+    load_dotenv()
+    main_dataframe = main_transform()
+    connection = get_database_connection()
+
+    print(main_dataframe.columns)
+
+    # botanist_info = filter_to_botanist_information(main_dataframe)
+    # seed_botanist_table(connection, botanist_info)
+
+    # city_ids = get_city_ids(connection)
+    # origin_info = filter_to_origin_information(main_dataframe, city_ids)
+    # seed_origin_table(connection, origin_info)
