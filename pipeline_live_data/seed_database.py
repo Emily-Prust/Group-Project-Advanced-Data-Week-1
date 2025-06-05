@@ -61,7 +61,8 @@ def get_error_information(main_dataframe: pd.DataFrame,):
     return main_dataframe['error_name'].drop_duplicates().dropna()
 
 
-def seed_error_table(connection: pyodbc.Connection, error_information: pd.Series) -> None:
+def seed_error_table(database_connection: pyodbc.Connection,
+                     error_information: pd.Series) -> None:
     """Uploads the static error information to the database."""
 
     q = """
@@ -70,83 +71,159 @@ def seed_error_table(connection: pyodbc.Connection, error_information: pd.Series
 
     params = [(val,) for val in error_information.values]
     print(params)
-
-    with connection.cursor() as cur:
-        try:
-            connection.autocommit = False
-            logger.info("Attempting to insert into error table.")
-            cur.executemany(q, params)
-        except:
-            connection.rollback()
-            logger.warning("Rollback triggered in seed_error_table().")
-        else:
-            connection.commit()
-            logger.info("Committing to database in seed_error_table().")
-        finally:
-            connection.autocommit = True
+    upload_to_database(database_connection, q, params, "error")
 
 
-################################################
-# Part 2: Upload Plant and Location Tables.    #
-# Note: develop last as some questions remain. #
-# TODO: Remove note!                           #
-################################################
+#############################################
+# Part 2: Upload Plant and Location Tables. #
+#############################################
 
-def seed_country_table(country_data: pd.DataFrame,
-                         database_connection: pyodbc.Connection) -> None:
+# FOR COUNTRY
+
+def filter_to_country_information(main_dataframe: pd.DataFrame)-> pd.DataFrame:
+    """Collects a list of all relevant countries."""
+    return main_dataframe['country_name'].drop_duplicates().dropna()
+
+
+def seed_country_table(database_connection: pyodbc.Connection,
+                       country_information: pd.DataFrame
+                       ) -> None:
     """Uploads country data to the database."""
-    pass
+
+    q = """
+        INSERT INTO country(country_name) VALUES (?)
+        """
+
+    params = [(val,) for val in country_information.values]
+
+    upload_to_database(database_connection, q, params, "country")
 
 
-def query_country_ids(database_connection:  pyodbc.Connection) -> None:
+# FOR CITY
+
+def get_country_ids(database_connection: pyodbc.Connection) -> list[tuple]:
+    """Returns a list of countries with their assigned IDs."""
+    with database_connection.cursor() as cur:
+        q = "SELECT country_id, country_name FROM country;"
+        cur.execute(q)
+        data = cur.fetchall()
+    logger.debug("get_country_ids received: %s.", data)
+
+    country_ids = {country[1]:country[0] for country in data}
+
+    return country_ids
+
+
+def filter_to_city_information(main_dataframe: pd.DataFrame,
+                               country_ids: dict) -> pd.DataFrame:
+    """Returns all the city information needed for the database."""
+    city_data = main_dataframe[['city_name', 'country_name']].drop_duplicates().dropna()
+    city_data["country_id"] = city_data["country_name"].replace(country_ids)
+    logger.debug("Country ID map:\n%s", country_ids)
+    logger.debug("City data:\n%s", city_data)
+    return city_data
+
+
+def seed_city_table(database_connection: pyodbc.Connection, 
+                    city_data: pd.DataFrame) -> None:
+    """Uploads city data to the database."""
+
+    q = """
+        INSERT INTO city(country_id, city_name) VALUES (?, ?)
+        """
+    params = list(city_data[["country_id", "city_name"]].itertuples(index=False, name=None))
+
+
+    logger.debug("City data to upload:\n%s",params)
+    upload_to_database(database_connection, q, params, "city")
+
+
+# FOR ORIGIN
+
+def get_city_ids(database_connection:  pyodbc.Connection) -> None:
     """Returns a list of countries with their assigned IDs."""
     pass
 
 
-def seed_city_table(city_data: pd.DataFrame,
-                      database_connection: pyodbc.Connection) -> None:
+def filter_to_origin_information(main_dataframe: pd.DataFrame,
+                                 country_ids: pd.DataFrame) -> pd.DataFrame:
+    """Returns all the origin information needed for the database."""
+    # lat, long NOT city here, that's dealt with in plant functions.
+    pass
+
+
+def seed_origin_table(connection: pyodbc.Connection,
+                      main_dataframe: pd.DataFrame,
+                      ) -> None:
+    """Uploads origin data to the database."""
+    pass
+
+
+# FOR PLANT
+
+def get_origin_ids(database_connection: pyodbc.Connection) -> pd.DataFrame:
+    """Returns a list of all origin IDs."""
+    pass
+
+
+def filter_to_plant_information(main_dataframe: pd.DataFrame,
+                                country_ids: pd.DataFrame) -> pd.DataFrame:
+    """Returns all the necessary plant information."""
+    # Should include lat/long as it'll be needed.
+    pass
+
+
+def seed_plant_table(connection: pyodbc.Connection,
+                     main_dataframe: pd.DataFrame,
+                     ) -> None:
     """
-    Uploads city data to the database.
-    country_data requires a list of countries with their IDs.
+    Uploads plant data to the database, updates 
+    the origin table if a plant is missing lat/long
+    information.
+    """
+
+    """
+    - Get plant info
+    - Get city info
+    - Split df into plants w/ origin and those w/o
+    - If origin, easy link, same as normal
+    - If no origin, insert into origin table entries w/o
+      lat/long but with just city ID.
+    
     """
     pass
 
 
-def get_country_ids() -> pd.DataFrame:
-    """Queries the database to get a df with country & country_id."""
-    pass
-
-
-def create_city_dataframe(city_data: pd.DataFrame,
-                          country_id: pd.DataFrame) -> pd.DataFrame:
-    """Returns a df with city_name & country_id."""
-    pass
-
-
-def seed_city_table(country_data: pd.DataFrame,
-                      database_connection: pyodbc.Connection) -> None:
-    """Uploads city data to the database."""
-    pass
-
-
-def upload_plant_and_location_tables(main_dataframe: pd.DataFrame,
-                                     connection:pyodbc.Connection) -> None:
+def seed_plant_and_location_tables(connection: pyodbc.Connection,
+                                   main_dataframe: pd.DataFrame,
+                                     ) -> None:
     """Uploads the plant and location information to the database."""
 
-    seed_country_table(
-        main_dataframe["country_name"].drop_duplicates(),
-        connection
-    )
+    country_info = filter_to_country_information(main_dataframe)
+    seed_country_table(connection, country_info)
+
+    country_ids = get_country_ids(connection) # List of (country_id, country_name) tuples.
+    city_info = filter_to_city_information(main_dataframe, country_ids)
+    seed_city_table(connection, city_info)
+
 
     country_ids = get_country_ids(connection)
-    city_dataframe = create_city_dataframe(main_dataframe, country_ids) 
-    seed_city_table(city_dataframe, connection)
 
-    # TODO Origin (two types of query), Plant.
+
+    # country_ids = get_country_ids(connection)
+
+    # city_ids = get_city_ids()
+    # origin_info = filter_to_origin_information(main_dataframe, origin_info)
+    # seed_origin_table(connection, origin_info)
+
+    # city_ids = get_city_ids()
+    # plant_info = filter_to_plant_information(main_dataframe, origin_info)
+    # seed_origin_table(connection, origin_info)
 
 
 ###################################
 # Part 3: Upload Botanist Tables. #
+# TODO                            #
 ###################################
 
 def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -159,61 +236,84 @@ def seed_botanist_table(botanist_information: pd.DataFrame) -> None:
     pass
 
 
-def upload_botanist_and_assignment_tables(main_dataframe: pd.DataFrame,
-                                          connection:pyodbc.Connection) -> None:
+def seed_botanist_and_assignment_tables(connection: pyodbc.Connection,
+                                          main_dataframe: pd.DataFrame,
+                                          ) -> None:
     """
     Uploads the botanist information to the database,
     including which plants they work with.
     """
     botanist_info = filter_to_botanist_information(main_dataframe)
-    seed_botanist_table(botanist_info, connection)
+    seed_botanist_table(connection, botanist_info)
 
 
-def seed_appropriate_tables(main_dataframe: pd.DataFrame,
-                            connection: pyodbc.Connection) -> None:
-    """Calls all the seed table functions."""
-
-    conn = ...
-
-    all_seed_data = ...
-
-    upload_botanist_and_assignment_tables(all_seed_data, conn)
-
-
-def handler():
-    """What should be run when the script is properly executed."""
-    
-    cleaned = main_transform()
-    logger.info(cleaned.info())
-    logger.info(cleaned.head())
-    logger.info(cleaned.columns)
-
-    logger.info(create_json_from_dfs(cleaned))
-    # logger.info(create_separate_dfs(cleaned))
+#####################
+# General functions #
+#####################
 
 def test_connection(connection: pyodbc.Connection) -> None:
     """Logs the connection's status."""
 
-    with conn.cursor() as cur:
+    with connection.cursor() as cur:
         q = "SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';"
         cur.execute(q)
         data = cur.fetchmany()
     logger.info("Test connection received %s.", data)
 
 
-if __name__ == "__main__":
+def upload_to_database(connection: pyodbc.Connection,
+                       query:str,
+                       parameters: list[tuple],
+                       table_name: str) -> None:
+
+    with connection.cursor() as cur:
+        try:
+            connection.autocommit = False
+            logger.info("Attempting to insert into %s table.", table_name)
+            cur.executemany(query, parameters)
+        except:
+            connection.rollback()
+            logger.warning("Rollback triggered in seed_ %s_table().", table_name)
+        else:
+            connection.commit()
+            logger.info("Committing to database in seed_ %s _table().", table_name)
+        finally:
+            connection.autocommit = True
+
+
+def seed_appropriate_tables(connection: pyodbc.Connection,
+                            main_dataframe: pd.DataFrame,
+                            ) -> None:
+    """Calls all the seed table functions."""
+
+    error_info = get_error_information(main_dataframe)
+    logger.debug("Sensor error values: %s", error_info.values)
+    seed_error_table(connection, error_info)
+
+    seed_plant_and_location_tables(connection, main_dataframe)
+
+    # seed_botanist_and_assignment_tables(connection, main_dataframe)
+
+
+########
+# Main #
+########
+
+def main():
+    """Makes this script easily runnable from others."""
 
     load_dotenv()
 
     all_data = main_transform()
 
-    error_info = get_error_information(all_data)
-    logger.debug("Sensor error values: %s", error_info.values)
-
     conn = get_database_connection()
     test_connection(conn)
-    
-    seed_error_table(conn, error_info)
+
+    seed_appropriate_tables(conn, all_data)
 
     conn.close()
     logger.info("Database connection closed.")
+
+
+if __name__ == "__main__":
+    # main()
