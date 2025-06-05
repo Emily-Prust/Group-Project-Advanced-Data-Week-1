@@ -39,7 +39,7 @@ resource "aws_ecr_repository" "archived-lambda-image-repo" {
 
 # ECR Repository for sensor errors image
 
-resource "aws_ecr_repository" "archived-lambda-image-repo" {
+resource "aws_ecr_repository" "sensor-errors-lambda-image-repo" {
   name                 = "c17-allum-ecr-sensor-errors-terraform"
   image_tag_mutability = "MUTABLE"
 
@@ -50,7 +50,7 @@ resource "aws_ecr_repository" "archived-lambda-image-repo" {
 
 # ECR Repository for measurement errors image
 
-resource "aws_ecr_repository" "archived-lambda-image-repo" {
+resource "aws_ecr_repository" "measurement-errors-lambda-image-repo" {
   name                 = "c17-allum-ecr-measurement-errors-terraform"
   image_tag_mutability = "MUTABLE"
 
