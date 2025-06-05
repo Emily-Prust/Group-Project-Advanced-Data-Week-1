@@ -230,7 +230,7 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
     seed_city_table(connection, city_info)
 
     city_ids = get_city_ids(connection)
-    origin_info = filter_to_origin_information(main_dataframe, origin_info)
+    origin_info = filter_to_origin_information(main_dataframe, city_ids)
     seed_origin_table(connection, origin_info)
 
 
@@ -343,10 +343,11 @@ if __name__ == "__main__":
     main_dataframe = main_transform()
     connection = get_database_connection()
 
-    # print(main_dataframe.columns)
+    print(main_dataframe.columns)
 
     botanist_info = filter_to_botanist_information(main_dataframe)
-    seed_botanist_table(connection, botanist_info)
+    print(botanist_info["botanist_email"])
+    # seed_botanist_table(connection, botanist_info)
 
 
     # city_ids = get_city_ids(connection)
