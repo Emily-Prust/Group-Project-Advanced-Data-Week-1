@@ -11,11 +11,9 @@ resource "aws_ecr_repository" "pipeline-lambda-image-repo" {
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
-    encryption_type = "AES25"
+    encryption_type = "AES256"
   }
 }
-
-#delete
 
 # ECR Repository for dashboard image
 
