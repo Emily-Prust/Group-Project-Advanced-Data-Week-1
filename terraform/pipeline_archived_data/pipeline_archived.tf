@@ -42,6 +42,14 @@ data "aws_iam_policy_document" "archived-lambda-role-permissions-policy-doc" {
     ]
     resources = ["arn:aws:logs:eu-west-2:129033205317:*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = ["${aws_s3_bucket.archived-s3.arn}/*"]
+  }
 }
 
 resource "aws_iam_role" "archived-lambda-role" {
@@ -73,3 +81,7 @@ resource "aws_lambda_function" "archived-lambda" {
 }
 
 # S3 Bucket
+
+resource "aws_s3_bucket" "archived-s3" {
+  bucket = "c17-allum-s3-archived-data"
+}
