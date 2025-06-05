@@ -152,5 +152,5 @@ if __name__ == "__main__":
     logger.info(cleaned.info())
     logger.info(cleaned.head())
 
-    create_json_from_dfs(cleaned)
-    # print(create_separate_dfs(cleaned))
+    logger.info(create_json_from_dfs(cleaned))
+    # logger.info(create_separate_dfs(cleaned))
