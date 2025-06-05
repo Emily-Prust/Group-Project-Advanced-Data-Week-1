@@ -25,28 +25,31 @@ CREATE TABLE "botanist" (
     botanist_id SMALLINT IDENTITY(1,1),
     botanist_name VARCHAR(50) NOT NULL,
     botanist_email VARCHAR(40) NOT NULL UNIQUE,
-    botanist_phone VARCHAR(11) NOT NULL UNIQUE,
+    botanist_phone VARCHAR(25) NOT NULL UNIQUE,
     PRIMARY KEY (botanist_id)
 );
 GO
 
 CREATE TABLE "error" (
     error_id SMALLINT IDENTITY(1,1),
-    error_name VARCHAR(50) NOT NULL,
+    error_name VARCHAR(50) NOT NULL UNIQUE,
     PRIMARY KEY (error_id)
 );
 GO
 
 CREATE TABLE "country" (
     country_id SMALLINT IDENTITY(1,1),
-    country_name VARCHAR(60) NOT NULL,
+    country_name VARCHAR(60) NOT NULL UNIQUE,
     PRIMARY KEY (country_id)
 );
 GO
 
+
+-- `city_name` is UNIQUE to making seeding the data easier.
+-- If this needs to change, the seeding script will as well.
 CREATE TABLE "city" (
     city_id SMALLINT IDENTITY(1,1),
-    city_name VARCHAR(200) NOT NULL,
+    city_name VARCHAR(200) NOT NULL UNIQUE,
     country_id SMALLINT NOT NULL,
     PRIMARY KEY (city_id),
     FOREIGN KEY (country_id) REFERENCES country(country_id)
