@@ -55,6 +55,8 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
 
     event_data = get_file_data()
 
+    # Two separate queries for each timestamp
+
     # Maybe be more selective of columns here to lessen transforming
     query = """ SELECT co.*, ci.*, o.*, p.*, b.*, m.*, e.*, pe.received_at
                 FROM country as co
