@@ -68,12 +68,10 @@ GO
 
 CREATE TABLE "plant" (
     plant_id SMALLINT IDENTITY(1,1),
-    botanist_id SMALLINT NOT NULL,
     origin_id SMALLINT NOT NULL,
     plant_name VARCHAR(100) NOT NULL,
     scientific_name VARCHAR(100),
     PRIMARY KEY (plant_id),
-    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
     FOREIGN KEY (origin_id) REFERENCES origin(origin_id)
 );
 GO
