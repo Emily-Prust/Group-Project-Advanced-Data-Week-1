@@ -4,9 +4,9 @@
 from os import environ as ENV
 import logging
 from datetime import datetime, timedelta, timezone
+
 import pyodbc
 import pandas as pd
-
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)

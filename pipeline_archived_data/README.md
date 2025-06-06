@@ -25,3 +25,20 @@ BUCKET_NAME=[NAME OF S3 BUCKET]
 AWS_ACCESS_KEY=[AWS ACCESS KEY ID]
 AWS_SECRET_KEY=[AWS SECRET KEY ID]
 ```
+
+## Files
+
+### extract.py
+
+Extracts data from an RDS, connected to via credentials in the `.env` file.
+Grabs a snapshot of the timestamp we are interested in, and collects the extracted 
+data into pandas DataFrame alongside it.  
+
+### transform.py
+
+Creates a CSV file from the extracted data, and returns the dictionary containing 
+the filename and the path to upload in S3.
+
+### load.py
+
+Calls the extract and transform process, and loads the created CSV into a defined S3 bucket.
