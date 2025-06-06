@@ -19,3 +19,9 @@ List of new columns:
 - 'origin_longitude'
 - 'city_name'
 - 'country_name'
+
+Setup steps:
+- New venv
+- Get requirements
+- Brew install `unixodbc` as in [Dan's notes](https://github.com/Peritract/pymssql-example/tree/main/pyodbc%20example)
+- Make a .env file
