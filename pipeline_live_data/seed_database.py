@@ -143,15 +143,14 @@ def seed_city_table(database_connection: pyodbc.Connection,
 
 def get_city_ids(database_connection:  pyodbc.Connection) -> None:
     """Returns a list of countries with their assigned IDs."""
+
     with database_connection.cursor() as cur:
         q = "SELECT city_id, city_name FROM city;"
         cur.execute(q)
         data = cur.fetchall()
     logger.debug("get_city_ids received: %s.", data)
 
-    city_ids = {city[1]: city[0] for city in data}
-
-    return city_ids
+    return {city[1]: city[0] for city in data}
 
 
 def filter_to_origin_information(main_dataframe: pd.DataFrame,
@@ -186,14 +185,30 @@ def seed_origin_table(database_connection: pyodbc.Connection,
 
 def get_origin_ids(database_connection: pyodbc.Connection) -> pd.DataFrame:
     """Returns a list of all origin IDs."""
-    pass
+
+    with database_connection.cursor() as cur:
+        q = "SELECT origin_id, origin_latitude, origin_longitude FROM origin;"
+        cur.execute(q)
+        data = cur.fetchall()
+    logger.debug("get_origin_ids received: %s.", data)
+
+    return {f"{origin[1]} {origin[2]}": origin[0] for origin in data}
 
 
 def filter_to_plant_information(main_dataframe: pd.DataFrame,
                                 country_ids: pd.DataFrame) -> pd.DataFrame:
     """Returns all the necessary plant information."""
+
     # Should include lat/long as it'll be needed.
-    pass
+# f"{origin[1]} {origin[2]}"
+    origin_data = main_dataframe[['plant_id',
+                                  'origin_latitude',
+                                  'origin_longitude',
+                                  'city_name']].drop_duplicates().dropna()
+    origin_data["city_id"] = origin_data["city_name"].replace(city_ids)
+    logger.debug("City ID map:\n%s", city_ids)
+    logger.debug("Origin data:\n%s", origin_data)
+    return origin_data
 
 
 def seed_plant_table(connection: pyodbc.Connection,
@@ -213,6 +228,7 @@ def seed_plant_table(connection: pyodbc.Connection,
     - If no origin, insert into origin table entries w/o
       lat/long but with just city ID.
     """
+
     pass
 
 
