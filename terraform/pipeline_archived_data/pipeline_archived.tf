@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "archived-lambda-role-permissions-policy-doc" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    resources = ["arn:aws:logs:eu-west-2:129033205317:*"]
+    resources = ["arn:aws:logs:eu-west-2:${var.ACCOUNT_ID}:*"]
   }
 
   statement {
