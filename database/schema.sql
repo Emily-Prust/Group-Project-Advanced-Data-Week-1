@@ -67,7 +67,7 @@ CREATE TABLE "origin" (
 GO
 
 CREATE TABLE "plant" (
-    plant_id SMALLINT IDENTITY(1,1),
+    plant_id SMALLINT NOT NULL UNIQUE,
     origin_id SMALLINT NOT NULL,
     plant_name VARCHAR(100) NOT NULL,
     scientific_name VARCHAR(100),
