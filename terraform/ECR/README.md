@@ -23,6 +23,14 @@ Create a `terraform.tfvars` file locally, and populate it with:
 - `c17-allum-ecr-archived-terraform`.
 - Stores the container image for the archived data Lambda.
 
+#### ECR Repository:
+- `c17-allum-ecr-sensor-errors-terraform`.
+- Stores the container image for the sensor errors Lambda.
+
+#### ECR Repository:
+- `c17-allum-ecr-measurement-errors-terraform`.
+- Stores the container image for the measurement errors Lambda.
+
 ## Provisioning Resources
 
 To provision resources run the following commands:
