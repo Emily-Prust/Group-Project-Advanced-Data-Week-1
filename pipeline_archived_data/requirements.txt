@@ -1,2 +1,6 @@
 pytest
 pylint
+pandas
+pyodbc
+boto3
+python-dotenv
