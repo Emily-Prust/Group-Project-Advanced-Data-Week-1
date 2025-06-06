@@ -23,30 +23,33 @@ DROP TABLE IF EXISTS botanist;
 
 CREATE TABLE "botanist" (
     botanist_id SMALLINT IDENTITY(1,1),
-    botanist_name VARCHAR(50) NOT NULL,
-    botanist_email VARCHAR(40) NOT NULL UNIQUE,
-    botanist_phone VARCHAR(11) NOT NULL UNIQUE,
+    botanist_name VARCHAR(100) NOT NULL,
+    botanist_email VARCHAR(254) NOT NULL UNIQUE,
+    botanist_phone VARCHAR(25) NOT NULL UNIQUE,
     PRIMARY KEY (botanist_id)
 );
 GO
 
 CREATE TABLE "error" (
     error_id SMALLINT IDENTITY(1,1),
-    error_name VARCHAR(50) NOT NULL,
+    error_name VARCHAR(50) NOT NULL UNIQUE,
     PRIMARY KEY (error_id)
 );
 GO
 
 CREATE TABLE "country" (
     country_id SMALLINT IDENTITY(1,1),
-    country_name VARCHAR(60) NOT NULL,
+    country_name VARCHAR(60) NOT NULL UNIQUE,
     PRIMARY KEY (country_id)
 );
 GO
 
+
+-- `city_name` is UNIQUE to making seeding the data easier.
+-- If this needs to change, the seeding script will as well.
 CREATE TABLE "city" (
     city_id SMALLINT IDENTITY(1,1),
-    city_name VARCHAR(200) NOT NULL,
+    city_name VARCHAR(200) NOT NULL UNIQUE,
     country_id SMALLINT NOT NULL,
     PRIMARY KEY (city_id),
     FOREIGN KEY (country_id) REFERENCES country(country_id)
@@ -64,13 +67,11 @@ CREATE TABLE "origin" (
 GO
 
 CREATE TABLE "plant" (
-    plant_id SMALLINT IDENTITY(1,1),
-    botanist_id SMALLINT NOT NULL,
+    plant_id SMALLINT NOT NULL UNIQUE,
     origin_id SMALLINT NOT NULL,
     plant_name VARCHAR(100) NOT NULL,
     scientific_name VARCHAR(100),
     PRIMARY KEY (plant_id),
-    FOREIGN KEY (botanist_id) REFERENCES botanist(botanist_id),
     FOREIGN KEY (origin_id) REFERENCES origin(origin_id)
 );
 GO
