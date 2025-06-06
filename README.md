@@ -8,18 +8,44 @@ The data will need to be stored in long term storage, and be queryable to create
 
 ## Deliverables
 
-- A full data pipeline, hosted in the cloud
-- A short-term database solution that can store the full data for the past 24 hours
-- A long-term archive solution for data older than 24 hours
-- A form of visualisation for the data
+- A full E.T.L data pipeline, hosted in the cloud on AWS.
+- An RDS that can store the full data for the past 24 hours
+- An S3 bucket for storing data older than 24 hours
+- A streamlit dashboard for both real-time and historical visualisations of the data.
+
+## Setup
+
+1) To setup the project, navigate to `/terraform` and follow the steps in the README.
+2) Navigate to `/database` and follow the steps in the README to create the schema.
+3) Navigate to `/pipeline_live_data` and follow the steps in the README to setup the live data pipeline.
+4) Navigate to `/pipeline_archived_data` and follow the steps in the README to setup the archived data pipeline.
+5) Finally, navigate to `/dashboard` and follow the steps in the README to setup the streamlit dashboard.
+
+## Architecture 
+
+#### System Architecture Diagram
+![Architecture Diagram](https://raw.githubusercontent.com/rafsandwich/Group-Project-Advanced-Data-Week-1/main/architecture/Architecture_Diagram.png)
+
+#### Entity Relationship Diagram
+![ERD](https://raw.githubusercontent.com/rafsandwich/Group-Project-Advanced-Data-Week-1/refs/heads/main/architecture/ERD_Diagram.png)
+
+Note: these are stored in `/architecture`.
   
 ## Roles
 
-Data Engineer - Tom, Ibrahim, Emily, Raphael  
-Architect - Tom, Ibrahim  
-Quality Assurance - Emily  
-Project Manager - Raphael
-
-## Stakeholders
+| Member    | Role                            |
+|-----------|---------------------------------|
+| Tom       | Data Engineer, Architect        |
+| Ibrahim   | Data Engineer, Architect        |
+| Emily     | Data Engineer, Quality Assurance|
+| Raphael   | Data Engineer, Project Manager  |
 
 ## Technology
+
+- Python - boto3, pandas, pyodbc, streamlit, pylint, pytest
+- AWS - ECR, ECS, S3, Step Functions, EventBridge, SNS, Lambda Functions, RDS,
+- Docker
+- Terraform
+- Microsoft SQL Server
+- Streamlit
+- CI/CD
