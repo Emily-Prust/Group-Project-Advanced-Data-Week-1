@@ -55,10 +55,12 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
 
     event_data = get_file_data()
 
-    # Two separate queries for each timestamp
-
-    # Maybe be more selective of columns here to lessen transforming
-    query = """ SELECT co.*, ci.*, o.*, p.*, b.*, m.*, e.*, pe.received_at
+    query = """ SELECT co.country_id, co.country_name, ci.city_id, ci.city_name, 
+                o.origin_id, o.origin_latitude, o.origin_longitude,
+                p.plant_id, p.plant_name, p.scientific_name,
+                b.botanist_id, b.botanist_name, b.botanist_email, b.botanist_phone,
+                m.measurement_id, m.temperature, m.soil_moisture, m.last_watered, m.at,
+                pe.received_at, e.error_id, e.error_name
                 FROM country as co
                 JOIN city as ci on co.country_id = ci.country_id
                 JOIN origin as o on ci.city_id = o.city_id
@@ -68,8 +70,8 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
                 JOIN measurement as m on p.plant_id = m.plant_id
                 JOIN botanist_assignment as ba on p.plant_id = ba.plant_id
                 JOIN botanist as b on ba.botanist_id = b.botanist_id
-                WHERE at <= ?
-                AND received_at <= ?
+                WHERE (m.at IS NOT NULL AND m.at <= ?)
+                OR (pe.received_at IS NOT NULL AND pe.received_at <= ?)
             """
 
     df = pd.read_sql(query, conn, params=(

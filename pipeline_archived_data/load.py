@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 
 from transform import create_csv
 
-if __name__ == "__main__":
 
-    load_dotenv()
+def handler(event=None, context=None):
+    """Uploads the csv to the bucket."""
 
     info = create_csv()
 
@@ -17,3 +17,9 @@ if __name__ == "__main__":
 
     s3_client.upload_file(
         info["file_name"], ENV["BUCKET_NAME"], info["bucket_key"])
+
+
+if __name__ == "__main__":
+
+    load_dotenv()
+    handler()
