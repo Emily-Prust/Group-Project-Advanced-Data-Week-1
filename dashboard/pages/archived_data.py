@@ -4,7 +4,8 @@ import logging
 import streamlit as st
 import pandas as pd
 
-from resources.archived_data.extract import load_data, filter_plants
+from resources.archived_data.extract import (
+    load_data, filter_plants, map_plant_id_to_name, flag_errors)
 from resources.archived_data.charts import (
     get_temperature_over_time_chart, get_soil_moisture_over_time_chart)
 
@@ -80,8 +81,30 @@ def display_average_moisture(df: pd.DataFrame):
     st.metric(label="Average Soil Moisture (%)", value=f"{avg_moisture:.2f}")
 
 
+def display_extra_plant_info(df: pd.DataFrame):
+    """Displays additional plant info in a box."""
+    with st.container():
+        st.markdown("#### Additional Information")
+
+        measurement_error = df['error_name'].isin(
+            ['invalid_temp', 'low_moisture']).sum()
+        sensor_errors = len(df[df['error_name'].notna()]) - measurement_error
+        total_readings = len(df)
+        assigned_botanists = df['botanist_name'].dropna().unique()
+
+        st.markdown(f"- **Number of Measurement Errors:** {measurement_error}")
+        st.markdown(f"- **Number of Sensor Errors:** {sensor_errors}")
+        st.markdown(f"- **Total Readings:** {total_readings}")
+        st.markdown("#### **Assigned Botanists:**")
+        for botanist in assigned_botanists:
+            st.markdown(f"  - {botanist}")
+
+
 def display_error_data(df: pd.DataFrame):
     """Displays the error data for one plant."""
+
+    df = map_plant_id_to_name(df)
+    df = flag_errors(df)
 
     selected_plant = get_sidebar_plant_error_filter(df)
 
@@ -95,13 +118,15 @@ def display_error_data(df: pd.DataFrame):
 
     with right:
         display_average_moisture(single_plant)
+        display_extra_plant_info(single_plant)
 
 
 if __name__ == "__main__":
     df = load_data("test_plants_extra.csv")
 
     # remove this and put into homepage.py i think
-    st.set_page_config(layout="wide")
+    st.set_page_config(layout="wide",
+                       initial_sidebar_state="collapsed")
 
     st.title("Historical Data")
 
