@@ -30,14 +30,21 @@ def display_soil_moisture_chart(df: pd.DataFrame):
     st.altair_chart(get_soil_moisture_over_time_chart(df))
 
 
-def display_measurement_data(df: pd.DataFrame):
-    """Displays the temperature and soil moisture charts."""
-
+def get_sidebar_plant_filter(df: pd.DataFrame) -> pd.DataFrame:
+    """Make the plant filter in the sidebar, and return only relevant plants."""
     with st.sidebar:
         st.header("Plant Filter")
         df = df.dropna(subset=['plant_name'])
         selected_plants = st.multiselect(
             "Select Plants", df['plant_name'].unique())
+
+    return selected_plants
+
+
+def display_measurement_data(df: pd.DataFrame):
+    """Displays the temperature and soil moisture charts."""
+
+    selected_plants = get_sidebar_plant_filter(df)
 
     filtered_plants = filter_plants(df, selected_plants)
 
