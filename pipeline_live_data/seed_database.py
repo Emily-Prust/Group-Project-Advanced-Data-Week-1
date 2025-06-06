@@ -1,15 +1,12 @@
 """Transforming the extracted data."""
 
-import ast
 import logging
-import json
 from os import environ as ENV
 
 import pandas as pd
 import pyodbc
 from dotenv import load_dotenv
 
-from extract import CSV_NAME
 from transform import main_transform
 
 
@@ -124,7 +121,7 @@ def filter_to_city_information(main_dataframe: pd.DataFrame,
     return city_data
 
 
-def seed_city_table(database_connection: pyodbc.Connection, 
+def seed_city_table(database_connection: pyodbc.Connection,
                     city_data: pd.DataFrame) -> None:
     """Uploads city data to the database."""
 
@@ -203,7 +200,9 @@ def filter_to_plant_information(main_dataframe: pd.DataFrame,
                                   'origin_longitude',
                                   'plant_name',
                                   'scientific_name'
-                                  ]].drop_duplicates().dropna(subset=["plant_id", "origin_latitude"])
+                                  ]].drop_duplicates(
+                                  ).dropna(subset=["plant_id",
+                                                   "origin_latitude"])
     plant_data["coords"] =   plant_data['origin_latitude'] \
                            + plant_data['origin_longitude']
     plant_data["origin_id"] = (plant_data["coords"].replace(origin_ids)).astype(int)
@@ -261,7 +260,8 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
 
 def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
     """Prepares data to be uploaded to the database."""
-    return main_dataframe[['botanist_name', 'botanist_email', 'botanist_phone']].drop_duplicates().dropna()
+    return main_dataframe[['botanist_name', 'botanist_email', 'botanist_phone']
+                          ].drop_duplicates().dropna()
 
 
 def seed_botanist_table(database_connection: pyodbc.Connection,
@@ -298,8 +298,8 @@ def filter_to_botanist_assignment_information(main_dataframe: pd.DataFrame,
 
     botanist_assignment_data = main_dataframe[[
         "botanist_email", "plant_id"]].drop_duplicates().dropna()
-    botanist_assignment_data["botanist_id"] = botanist_assignment_data["botanist_email"].replace(
-        botanist_ids)
+    botanist_assignment_data["botanist_id"] = botanist_assignment_data["botanist_email"
+                                                                       ].replace(botanist_ids)
 
     logger.debug("Botanist ID map:\n%s\n", botanist_ids)
     logger.debug("Botanist Assignment data:\n%s\n", botanist_assignment_data)
@@ -346,7 +346,9 @@ def test_connection(connection: pyodbc.Connection) -> None:
     """Logs the connection's status."""
 
     with connection.cursor() as cur:
-        q = "SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';"
+        q = """SELECT table_name, table_schema
+               FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_TYPE='BASE TABLE';"""
         cur.execute(q)
         data = cur.fetchmany()
     logger.info("Test connection received: %s.", data)
