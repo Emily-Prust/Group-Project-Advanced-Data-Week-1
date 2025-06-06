@@ -192,27 +192,31 @@ def get_origin_ids(database_connection: pyodbc.Connection) -> pd.DataFrame:
         data = cur.fetchall()
     logger.debug("get_origin_ids received: %s.", data)
 
-    return {f"{origin[1]} {origin[2]}": origin[0] for origin in data}
+    return {origin[1] + origin[2]: origin[0] for origin in data}
 
 
 def filter_to_plant_information(main_dataframe: pd.DataFrame,
-                                country_ids: pd.DataFrame) -> pd.DataFrame:
+                                origin_ids: pd.DataFrame) -> pd.DataFrame:
     """Returns all the necessary plant information."""
 
     # Should include lat/long as it'll be needed.
 # f"{origin[1]} {origin[2]}"
-    origin_data = main_dataframe[['plant_id',
+    plant_data = main_dataframe[['plant_id',
                                   'origin_latitude',
                                   'origin_longitude',
-                                  'city_name']].drop_duplicates().dropna()
-    origin_data["city_id"] = origin_data["city_name"].replace(city_ids)
-    logger.debug("City ID map:\n%s", city_ids)
-    logger.debug("Origin data:\n%s", origin_data)
-    return origin_data
+                                  'plant_name',
+                                  'scientific_name'
+                                  ]].drop_duplicates().dropna()
+    plant_data["coords"] =   plant_data['origin_latitude'] \
+                           + plant_data['origin_longitude']
+    plant_data["origin_id"] = (plant_data["coords"].replace(origin_ids)).astype(int)
+    logger.debug("Origin ID map:\n%s", origin_ids)
+    logger.debug("Plant data:\n%s", plant_data)
+    return plant_data
 
 
-def seed_plant_table(connection: pyodbc.Connection,
-                     main_dataframe: pd.DataFrame,
+def seed_plant_table(database_connection: pyodbc.Connection,
+                     plant_data: pd.DataFrame,
                      ) -> None:
     """
     Uploads plant data to the database, updates 
@@ -220,16 +224,20 @@ def seed_plant_table(connection: pyodbc.Connection,
     information.
     """
 
-    """
-    - Get plant info
-    - Get city info
-    - Split df into plants w/ origin and those w/o
-    - If origin, easy link, same as normal
-    - If no origin, insert into origin table entries w/o
-      lat/long but with just city ID.
-    """
 
-    pass
+INSERT INTO plant(plant_id, origin_id, plant_name, scientific_name)
+VALUES(5, 5, 'Pitcher plant', 'Sarracenia catesbaei')
+
+(5, 5, 'Pitcher plant', 'Sarracenia catesbaei')
+    q = """
+        INSERT INTO plant(plant_id, origin_id, plant_name, scientific_name)
+        VALUES (?, ?, ?, ?)
+        """
+    params = list(plant_data[["plant_id", "origin_id", "plant_name", "scientific_name"]
+                              ].itertuples(index=False, name=None))
+
+    logger.debug("Plant data to upload:\n%s", params)
+    upload_to_database(database_connection, q, params, "plant")
 
 
 def seed_plant_and_location_tables(connection: pyodbc.Connection,
@@ -247,6 +255,10 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
     city_ids = get_city_ids(connection)
     origin_info = filter_to_origin_information(main_dataframe, city_ids)
     seed_origin_table(connection, origin_info)
+
+    origin_ids = get_origin_ids(connection)
+    plant_info = filter_to_plant_information(main_dataframe, origin_ids)
+    seed_plant_table(connection, plant_info)
 
 
 ###################################
@@ -352,10 +364,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
 
-    # load_dotenv()
-    # main_dataframe = main_transform()
-    # connection = get_database_connection()
+    load_dotenv()
+    main_dataframe = main_transform()
+    connection = get_database_connection()
 
-    # print(main_dataframe.columns)
+    origin_ids = get_origin_ids(connection)
+    plant_info = filter_to_plant_information(main_dataframe, origin_ids)
+    seed_plant_table(connection, plant_info)
