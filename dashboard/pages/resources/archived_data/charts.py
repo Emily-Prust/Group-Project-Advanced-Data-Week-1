@@ -53,6 +53,6 @@ def get_error_distribution_chart(df: pd.DataFrame) -> alt.Chart:
         color=alt.Color("error_category:N", title="Error Category"),
         tooltip=["error_category", "count"]
     ).properties(
-        width=600,
-        height=600
+        width=300,
+        height=300
     )

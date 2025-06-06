@@ -129,11 +129,10 @@ def display_error_data(df: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    df = load_data("test_plants_extra.csv")
-
-    # remove this and put into homepage.py i think
     st.set_page_config(layout="wide",
                        initial_sidebar_state="collapsed")
+
+    df = load_data("test_plants_extra.csv")
 
     st.title("Historical Data")
 
