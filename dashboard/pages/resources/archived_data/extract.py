@@ -1,7 +1,9 @@
 """Functions for extracting and caching the archived data."""
 import pandas as pd
+import streamlit as st
 
 
+@st.cache_data
 def load_data(file_name: str) -> pd.DataFrame:
     """Loading the data to a dataframe.
     Currently reads from a csv, can be changed to loading from RDS in future.
@@ -9,8 +11,7 @@ def load_data(file_name: str) -> pd.DataFrame:
     return pd.read_csv(file_name)
 
 
-if __name__ == "__main__":
-    df = load_data("test_plants_historical.csv")
-
-    print(df.head())
-    print(df.describe())
+@st.cache_resource
+def filter_plants(df: pd.DataFrame, plant_names: list[str]) -> pd.DataFrame:
+    """Filter plant data by specific plant names."""
+    return df[df["plant_name"].isin(plant_names)]
