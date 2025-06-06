@@ -30,8 +30,8 @@ def display_soil_moisture_chart(df: pd.DataFrame):
     st.altair_chart(get_soil_moisture_over_time_chart(df))
 
 
-def get_sidebar_plant_filter(df: pd.DataFrame) -> pd.DataFrame:
-    """Make the plant filter in the sidebar, and return only relevant plants."""
+def get_sidebar_plant_measurement_filter(df: pd.DataFrame) -> list[str]:
+    """Make the plant filter in the sidebar, and return only relevant plants names."""
     with st.sidebar:
         st.header("Plant Filter")
         df = df.dropna(subset=['plant_name'])
@@ -43,8 +43,9 @@ def get_sidebar_plant_filter(df: pd.DataFrame) -> pd.DataFrame:
 
 def display_measurement_data(df: pd.DataFrame):
     """Displays the temperature and soil moisture charts."""
+    df['at'] = pd.to_datetime(df['at'], format='mixed')
 
-    selected_plants = get_sidebar_plant_filter(df)
+    selected_plants = get_sidebar_plant_measurement_filter(df)
 
     filtered_plants = filter_plants(df, selected_plants)
 
@@ -56,8 +57,48 @@ def display_measurement_data(df: pd.DataFrame):
         display_soil_moisture_chart(filtered_plants)
 
 
+def get_sidebar_plant_error_filter(df: pd.DataFrame) -> str:
+    """Make the plant filter in the sidebar, and return only the selected plant name."""
+    with st.sidebar:
+        st.header("Plant Filter")
+        df = df.dropna(subset=['plant_name'])
+        selected_plant = st.selectbox(
+            "Select Plant", df['plant_name'].unique())
+
+    return selected_plant
+
+
+def display_average_temp(df: pd.DataFrame):
+    """Displays the average temp for a selected plant."""
+    avg_temp = df['temperature'].mean()
+    st.metric(label="Average Temperature (°C)", value=f"{avg_temp:.2f}")
+
+
+def display_average_moisture(df: pd.DataFrame):
+    """Displays the average soil moisture for a selected plant."""
+    avg_moisture = df['soil_moisture'].mean()
+    st.metric(label="Average Soil Moisture (%)", value=f"{avg_moisture:.2f}")
+
+
+def display_error_data(df: pd.DataFrame):
+    """Displays the error data for one plant."""
+
+    selected_plant = get_sidebar_plant_error_filter(df)
+
+    single_plant = filter_plants(df, [selected_plant])
+
+    st.subheader(f"Information for {selected_plant}.")
+
+    left, right = st.columns(2)
+    with left:
+        display_average_temp(single_plant)
+
+    with right:
+        display_average_moisture(single_plant)
+
+
 if __name__ == "__main__":
-    df = load_data("test_plants_historical.csv")
+    df = load_data("test_plants_extra.csv")
 
     # remove this and put into homepage.py i think
     st.set_page_config(layout="wide")
@@ -65,6 +106,7 @@ if __name__ == "__main__":
     st.title("Historical Data")
 
     display_measurement_data(df)
+    display_error_data(df)
 
     logger.debug(df.head())
     logger.debug(df.columns)
