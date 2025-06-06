@@ -4,9 +4,9 @@ import logging
 import streamlit as st
 import pandas as pd
 
-from resources.archived_data.extract import (
+from pages.resources.archived_data.extract import (
     load_data, filter_plants, map_plant_id_to_name, flag_errors)
-from resources.archived_data.charts import (
+from pages.resources.archived_data.charts import (
     get_temperature_over_time_chart, get_soil_moisture_over_time_chart, get_error_distribution_chart)
 
 
@@ -132,9 +132,9 @@ if __name__ == "__main__":
     st.set_page_config(layout="wide",
                        initial_sidebar_state="collapsed")
 
-    df = load_data("test_plants_extra.csv")
+    df = load_data("pages/test_plants_extra.csv")
 
-    st.title("Historical Data")
+    st.title("LMNH Botanical Historical Dashboard")
 
     display_measurement_data(df)
     display_error_data(df)

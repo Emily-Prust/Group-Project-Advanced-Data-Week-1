@@ -3,9 +3,9 @@
 import pandas as pd
 import streamlit as st
 
-from resources.live_data.charts import (line_graph_temperature, line_graph_soil_moisture,
+from pages.resources.live_data.charts import (line_graph_temperature, line_graph_soil_moisture,
                                         pie_chart_oob_errors)
-from resources.live_data.extract import get_mock_data
+from pages.resources.live_data.extract import get_mock_data
 
 
 def user_filtering(data_to_filter: pd.DataFrame):
@@ -94,7 +94,7 @@ def main():
     st.set_page_config(layout="wide",
                        initial_sidebar_state="collapsed")
 
-    filename = "resources/live_data/test_plants_extra.csv"
+    filename = "pages/resources/live_data/test_plants.csv"
     data = get_mock_data(filename)
 
     st.title("LMNH Botanical Live Dashboard")
