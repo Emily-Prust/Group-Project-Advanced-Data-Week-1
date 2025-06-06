@@ -2,11 +2,20 @@
 # pylint: disable=I1101
 
 from os import environ as ENV
+import logging
 from datetime import datetime, timedelta, timezone
 import pyodbc
 import pandas as pd
 
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level="INFO",
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S"
+)
 
 
 def get_connection():
@@ -16,6 +25,7 @@ def get_connection():
                 f"PORT={ENV['DB_PORT']};DATABASE={ENV['DB_NAME']};"
                 f"UID={ENV['DB_USER']};PWD={ENV['DB_PASSWORD']};Encrypt=no;")
 
+    logging.info("Getting connection to database.")
     return pyodbc.connect(conn_str)
 
 
@@ -27,6 +37,7 @@ def get_file_data() -> dict:
     year = start_window.strftime('%Y')
 
     filename = f'{start_window.strftime('%Y-%m-%d_%H-%M')}_plants.csv'
+    logging.info("Got timestamp for fetching data: %s.", start_window)
 
     return {
         "start_window": start_window,
@@ -55,7 +66,7 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
 
     event_data = get_file_data()
 
-    query = """ SELECT co.country_id, co.country_name, ci.city_id, ci.city_name, 
+    query = """ SELECT co.country_id, co.country_name, ci.city_id, ci.city_name,
                 o.origin_id, o.origin_latitude, o.origin_longitude,
                 p.plant_id, p.plant_name, p.scientific_name,
                 b.botanist_id, b.botanist_name, b.botanist_email, b.botanist_phone,
@@ -77,6 +88,7 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
     df = pd.read_sql(query, conn, params=(
         event_data['start_window'], event_data['start_window']))
 
+    logging.info("Data successfully read from database.")
     event_data['dataframe'] = df
     return event_data
 
@@ -84,9 +96,3 @@ def get_plant_data(conn: pyodbc.connect) -> dict:
 if __name__ == "__main__":
 
     load_dotenv()
-
-    db_conn = get_connection()
-
-    print(get_plant_data(db_conn)['dataframe'].info())
-
-    db_conn.close()
