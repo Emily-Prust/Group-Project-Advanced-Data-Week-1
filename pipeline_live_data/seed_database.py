@@ -37,7 +37,6 @@ def create_separate_dfs(df: pd.DataFrame) -> tuple[pd.DataFrame]:
     return country_df, city_df, origin_df, plant_df, botanist_df, error_df
 
 
-
 def get_database_connection() -> pyodbc.Connection:
     """Establish a connection with the database."""
 
@@ -101,7 +100,7 @@ def seed_country_table(database_connection: pyodbc.Connection,
 
 # FOR CITY
 
-def get_country_ids(database_connection: pyodbc.Connection) -> list[tuple]:
+def get_country_ids(database_connection: pyodbc.Connection) -> dict:
     """Returns a list of countries with their assigned IDs."""
     with database_connection.cursor() as cur:
         q = "SELECT country_id, country_name FROM country;"
@@ -141,8 +140,8 @@ def seed_city_table(database_connection: pyodbc.Connection,
 
 # FOR ORIGIN
 
-def get_city_ids(database_connection:  pyodbc.Connection) -> None:
-    """Returns a list of countries with their assigned IDs."""
+def get_city_ids(database_connection:  pyodbc.Connection) -> dict:
+    """Returns a list of cities with their assigned IDs."""
 
     with database_connection.cursor() as cur:
         q = "SELECT city_id, city_name FROM city;"
@@ -199,14 +198,12 @@ def filter_to_plant_information(main_dataframe: pd.DataFrame,
                                 origin_ids: pd.DataFrame) -> pd.DataFrame:
     """Returns all the necessary plant information."""
 
-    # Should include lat/long as it'll be needed.
-# f"{origin[1]} {origin[2]}"
     plant_data = main_dataframe[['plant_id',
                                   'origin_latitude',
                                   'origin_longitude',
                                   'plant_name',
                                   'scientific_name'
-                                  ]].drop_duplicates().dropna()
+                                  ]].drop_duplicates()
     plant_data["coords"] =   plant_data['origin_latitude'] \
                            + plant_data['origin_longitude']
     plant_data["origin_id"] = (plant_data["coords"].replace(origin_ids)).astype(int)
@@ -224,11 +221,6 @@ def seed_plant_table(database_connection: pyodbc.Connection,
     information.
     """
 
-
-INSERT INTO plant(plant_id, origin_id, plant_name, scientific_name)
-VALUES(5, 5, 'Pitcher plant', 'Sarracenia catesbaei')
-
-(5, 5, 'Pitcher plant', 'Sarracenia catesbaei')
     q = """
         INSERT INTO plant(plant_id, origin_id, plant_name, scientific_name)
         VALUES (?, ?, ?, ?)
@@ -265,6 +257,8 @@ def seed_plant_and_location_tables(connection: pyodbc.Connection,
 # Part 3: Upload Botanist Tables. #
 ###################################
 
+# BOTANIST
+
 def filter_to_botanist_information(main_dataframe: pd.DataFrame) -> pd.DataFrame:
     """Prepares data to be uploaded to the database."""
     return main_dataframe[['botanist_name', 'botanist_email', 'botanist_phone']].drop_duplicates().dropna()
@@ -277,11 +271,55 @@ def seed_botanist_table(database_connection: pyodbc.Connection,
     q = """
         INSERT INTO botanist(botanist_name, botanist_email, botanist_phone) VALUES (?, ?, ?)
         """
-# INSERT INTO botanist(botanist_name, botanist_email, botanist_phone) VALUES ('Kenneth Buckridge', 'kenneth.buckridge@lnhm.co.uk', '763.914.8635 x57724')
+
     params = [(val[0], val[1], val[2]) for val in botanist_information.values]
     logger.debug("Botanist data to upload:\n%s", params)
 
     upload_to_database(database_connection, q, params, "botanist")
+
+
+# BOTANIST ASSIGNMENT
+
+def get_botanist_ids(database_connection:  pyodbc.Connection) -> pd.DataFrame:
+    """Returns a list of botanist's emails with their assigned IDs."""
+
+    with database_connection.cursor() as cur:
+        q = "SELECT botanist_id, botanist_email FROM botanist;"
+        cur.execute(q)
+        data = cur.fetchall()
+    logger.debug("get_botanist_ids received: %s.", data)
+
+    return {botanist[1]: botanist[0] for botanist in data}
+
+
+def filter_to_botanist_assignment_information(main_dataframe: pd.DataFrame,
+                                              botanist_ids: pd.DataFrame) -> pd.DataFrame:
+    """Returns all the botanist_assignment information needed for the database."""
+
+    botanist_assignment_data = main_dataframe[[
+        "botanist_email", "plant_id"]].drop_duplicates().dropna()
+    botanist_assignment_data["botanist_id"] = botanist_assignment_data["botanist_email"].replace(
+        botanist_ids)
+
+    logger.debug("Botanist ID map:\n%s", botanist_ids)
+    logger.debug("Botanist Assignment data:\n%s", botanist_assignment_data)
+    return botanist_assignment_data
+
+
+def seed_botanist_assignment_table(database_connection: pyodbc.Connection,
+                                   botanist_assignment_data: pd.DataFrame,
+                                   ) -> None:
+    """Uploads botanist data to the database."""
+
+    q = """
+        INSERT INTO botanist_assignment(botanist_id, plant_id) VALUES (?, ?)
+        """
+
+    params = list(botanist_assignment_data[["botanist_id", "plant_id"]
+                              ].itertuples(index=False, name=None))
+
+    logger.debug("Botanist Assignment data to upload:\n%s", params)
+    upload_to_database(database_connection, q, params, "botanist_assignment")
 
 
 def seed_botanist_and_assignment_tables(connection: pyodbc.Connection,
@@ -293,6 +331,10 @@ def seed_botanist_and_assignment_tables(connection: pyodbc.Connection,
     """
     botanist_info = filter_to_botanist_information(main_dataframe)
     seed_botanist_table(connection, botanist_info)
+
+    botanist_assignment_info = filter_to_botanist_assignment_information(
+        main_dataframe)
+    seed_botanist_assignment_table(connection, botanist_assignment_info)
 
 
 #####################
@@ -313,11 +355,13 @@ def upload_to_database(connection: pyodbc.Connection,
                        query:str,
                        parameters: list[tuple],
                        table_name: str) -> None:
+    """Batch sends queries to the database."""
 
     with connection.cursor() as cur:
         try:
             connection.autocommit = False
             logger.info("Attempting to insert into %s table.", table_name)
+            cur.fast_executemany = True
             cur.executemany(query, parameters)
         except:
             connection.rollback()
@@ -364,12 +408,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-
-    load_dotenv()
-    main_dataframe = main_transform()
-    connection = get_database_connection()
-
-    origin_ids = get_origin_ids(connection)
-    plant_info = filter_to_plant_information(main_dataframe, origin_ids)
-    seed_plant_table(connection, plant_info)
+    main()
