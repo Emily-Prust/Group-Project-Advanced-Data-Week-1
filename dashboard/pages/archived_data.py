@@ -7,7 +7,7 @@ import pandas as pd
 from resources.archived_data.extract import (
     load_data, filter_plants, map_plant_id_to_name, flag_errors)
 from resources.archived_data.charts import (
-    get_temperature_over_time_chart, get_soil_moisture_over_time_chart)
+    get_temperature_over_time_chart, get_soil_moisture_over_time_chart, get_error_distribution_chart)
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def display_soil_moisture_chart(df: pd.DataFrame):
 def get_sidebar_plant_measurement_filter(df: pd.DataFrame) -> list[str]:
     """Make the plant filter in the sidebar, and return only relevant plants names."""
     with st.sidebar:
-        st.header("Plant Filter")
+        st.header("Measurements Filter")
         df = df.dropna(subset=['plant_name'])
         selected_plants = st.multiselect(
             "Select Plants", df['plant_name'].unique())
@@ -100,6 +100,12 @@ def display_extra_plant_info(df: pd.DataFrame):
             st.markdown(f"  - {botanist}")
 
 
+def display_error_distribution_chart(df: pd.DataFrame):
+    """Display the error distribution chart."""
+    st.subheader('Error Distribution')
+    st.altair_chart(get_error_distribution_chart(df))
+
+
 def display_error_data(df: pd.DataFrame):
     """Displays the error data for one plant."""
 
@@ -115,6 +121,7 @@ def display_error_data(df: pd.DataFrame):
     left, right = st.columns(2)
     with left:
         display_average_temp(single_plant)
+        display_error_distribution_chart(single_plant)
 
     with right:
         display_average_moisture(single_plant)
