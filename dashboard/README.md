@@ -4,6 +4,9 @@ The files for running the plant-sensor dashboard.
 
 ## Setup
 
+- Currently requires a CSV of historical data in the `pages/` directory called `test_plants_extra.csv`.
+- Currently requires a CSV of live data in the `pages/resources/live_data` directory called `test_plants.csv`.
+
 ## Structure Explanation
 
 Streamlit looks for a `pages/` folder for multipage apps, it seems that any python files in this folder are converted into pages.
